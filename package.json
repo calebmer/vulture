@@ -1,11 +1,17 @@
 {
   "name": "vulture",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A light front-end framework based around the fast virtual DOM.",
   "keywords": [
-    "vulture", "virtual", "dom",
-    "virtual-dom", "framework", "fast",
-    "light", "front", "end",
+    "vulture",
+    "virtual",
+    "dom",
+    "virtual-dom",
+    "framework",
+    "fast",
+    "light",
+    "front",
+    "end",
     "frontend"
   ],
   "main": "index.js",
