@@ -2,6 +2,10 @@
   "name": "vulture",
   "version": "1.0.0",
   "description": "A light front-end framework based around the fast virtual DOM.",
+  "author": "Caleb Meredith <calebmeredith8@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/calebmer/vulture#readme",
+  "repository": "calebmer/vulture",
   "keywords": [
     "vulture", "virtual", "dom",
     "virtual-dom", "framework", "fast",
