@@ -1,0 +1,39 @@
+{
+  "name": "vulture",
+  "version": "0.0.0",
+  "description": "A light front-end framework based around the fast virtual DOM.",
+  "keywords": [
+    "vulture", "virtual", "dom",
+    "virtual-dom", "framework", "fast",
+    "light", "front", "end",
+    "frontend"
+  ],
+  "main": "index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "$(npm bin)/mocha -r babel-register test/*.test.js",
+    "prepublish": "npm run build",
+    "build": "$(npm bin)/babel lib -d dist",
+    "release": "npm run release-patch",
+    "release-patch": "npm test && git checkout master && npm version patch && git push origin master --tags && npm publish",
+    "release-minor": "npm test && git checkout master && npm version minor && git push origin master --tags && npm publish",
+    "release-major": "npm test && git checkout master && npm version major && git push origin master --tags && npm publish"
+  },
+  "dependencies": {
+    "lodash": "^3.10.1",
+    "vdom-to-html": "^2.2.0",
+    "vdom-virtualize": "^1.0.1",
+    "virtual-dom": "^2.1.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.3.17",
+    "babel-plugin-transform-react-jsx": "^6.3.13",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-stage-1": "^6.3.13",
+    "babel-register": "^6.3.13",
+    "jsdom": "^7.2.2",
+    "mocha": "^2.3.4"
+  }
+}
