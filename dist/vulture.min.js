@@ -3432,7 +3432,7 @@ var Vulture =
 	  }
 
 	  var prevChildren = nextNode.children
-	  var nextChildren = isArray(prevChildren) ? prevChildren.map(node => map(node, mapper, rootNode)) : null
+	  var nextChildren = isArray(prevChildren) ? prevChildren.map(function (node) { return map(node, mapper, rootNode) }) : null
 	  nextNode.children = nextChildren
 
 	  return nextNode
