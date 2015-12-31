@@ -27,10 +27,13 @@
   ],
   "scripts": {
     "test": "$(npm bin)/mocha test/*.test.js",
+    "build": "npm run build-max && npm run build-min",
+    "build-max": "WEBPACK_MINIFY=false $(npm bin)/webpack",
+    "build-min": "WEBPACK_MINIFY=true $(npm bin)/webpack",
     "release": "npm run release-patch",
-    "release-patch": "npm test && git checkout master && npm version patch && git push origin master --tags && npm publish",
-    "release-minor": "npm test && git checkout master && npm version minor && git push origin master --tags && npm publish",
-    "release-major": "npm test && git checkout master && npm version major && git push origin master --tags && npm publish"
+    "release-patch": "git checkout master && npm test && npm run build && git add dist && git commit -m 'Rebuild browser distributable' && npm version patch && git push origin master --tags && npm publish",
+    "release-minor": "git checkout master && npm test && npm run build && git add dist && git commit -m 'Rebuild browser distributable' && npm version minor && git push origin master --tags && npm publish",
+    "release-major": "git checkout master && npm test && npm run build && git add dist && git commit -m 'Rebuild browser distributable' && npm version major && git push origin master --tags && npm publish"
   },
   "dependencies": {
     "es6-weak-map": "^2.0.1",
@@ -41,6 +44,7 @@
   },
   "devDependencies": {
     "jsdom": "^7.2.2",
-    "mocha": "^2.3.4"
+    "mocha": "^2.3.4",
+    "webpack": "^1.12.9"
   }
 }
