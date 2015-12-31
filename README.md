@@ -23,12 +23,12 @@ At it’s core, `vulture` is just an advanced virtual DOM rendering library. The
 var v = require('vulture')
 
 function StarButton(data) {
-	var isStarred = data.isStarred
-	var target = data.target
-	return (
-		v('button',
-			{ class: [isStarred ? 'is-starred' : null] },
-			(isStarred ? 'Starred' : 'Star') + ' ' + target)
+  var isStarred = data.isStarred
+  var target = data.target
+  return (
+    v('button',
+      { class: [isStarred ? 'is-starred' : null] },
+      (isStarred ? 'Starred' : 'Star') + ' ' + target)
 	)
 }
 
@@ -44,19 +44,19 @@ var v = require('vulture')
 var ButtonStar = require('./ButtonStar')
 
 function Person(data) {
-	var firstName = data.firstName
-	var lastName = data.lastName
-	var about = data.about
-	var isStarred = data.isStarred
-	return (
-		v('article', [
-			v('h1', firstName + ' ' + lastName),
-			StarButton({
-				target: firstName,
-				isStarred: isStarred
-			})
-		])
-	)
+  var firstName = data.firstName
+  var lastName = data.lastName
+  var about = data.about
+  var isStarred = data.isStarred
+  return (
+    v('article', [
+      v('h1', firstName + ' ' + lastName),
+      StarButton({
+        target: firstName,
+        isStarred: isStarred
+      })
+    ])
+  )
 }
 
 module.exports = Person
