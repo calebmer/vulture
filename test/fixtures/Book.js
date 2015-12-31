@@ -1,6 +1,8 @@
-import { h } from 'virtual-dom'
+var h = require('virtual-dom/h')
 
-export default function Book({ volume, title }) {
+function Book(data) {
+  var volume = data.volume
+  var title = data.title
   return (
     h('.book', [
       h('span.book--volume', `Vol. ${volume}:`),
@@ -9,3 +11,5 @@ export default function Book({ volume, title }) {
     ])
   )
 }
+
+module.exports = Book

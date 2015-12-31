@@ -5,7 +5,7 @@ To accomplish this goal, `vulture` uses the concept of isomorphism, shared code 
 
 ```js
 var v = require('vulture')
-var render = require('vulture/client')
+var render = require('vulture/dom')
 
 render(v('p', 'Hello, world!'))
 ```

@@ -1,20 +1,23 @@
-import { h } from 'virtual-dom'
-import Book from './Book'
+var h = require('virtual-dom/h')
+var Book = require('./Book')
 
-export default function Series({ title, about, books }) {
+function Series(data) {
+  var title = data.title
+  var about = data.about
+  var books = data.books
   return (
     h('.series', [
       h('h1.series--title', title),
       h('p.series--about', about),
       h('.series--books', [
         h('p', 'The books in the series are:'),
-        h('ul', books.map(Book).map(book => h('li', book)))
+        h('ul', books.map(Book).map(function (book) { return h('li', book) }))
       ])
     ])
   )
 }
 
-export const seriesData = {
+var sampleData = {
   title: 'Lord of the Rings',
   about: 'An English-language fictional trilogy by J. R. R. Tolkien (1892-1973).',
   books: [
@@ -32,3 +35,6 @@ export const seriesData = {
     }
   ]
 }
+
+Series.sampleData = sampleData
+module.exports = Series

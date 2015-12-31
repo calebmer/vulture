@@ -1,48 +1,45 @@
-import assert from 'assert'
-import { h, VNode } from 'virtual-dom'
-import v from '../lib/v'
-import EventHook from '../lib/EventHook'
-import Series, { seriesData } from './fixtures/series'
+var assert = require('assert')
+var identity = require('lodash/utility/identity')
+var h = require('virtual-dom/h')
+var VNode = require('virtual-dom/vnode/vnode')
+var EventHook = require('../lib/EventHook')
+var v = require('../lib/v')
+var Series = require('./fixtures/series')
 
-describe('v()', () => {
-  it('accepts a parameter rest as the children parameter', () => {
-    const children = [h('div'), h('p'), h('blockquote')]
-    assert.deepEqual(v('div', {}, ...children).children, children)
-    assert.deepEqual(v('div', ...children).children, children)
+var sampleData = Series.sampleData
+
+describe('v()', function () {
+  it('accepts a parameter rest as the children parameter', function () {
+    var children = [h('div'), h('p'), h('blockquote')]
+    assert.deepEqual(v.apply(null, ['div', {}].concat(children)).children, children)
+    assert.deepEqual(v.apply(null, ['div'].concat(children)).children, children)
   })
 
-  it('will call a function', () =>
-    assert.deepEqual(v(Series, seriesData), Series(seriesData))
-  )
+  it('will call a function', function () {
+    assert.deepEqual(v(Series, sampleData), Series(sampleData))
+  })
 
-  it('will call a function with children', () => {
-    const children = [h('div'), h('p'), h('blockquote')]
-    const component = (properties, children) => children
+  it('will call a function with children', function () {
+    var children = [h('div'), h('p'), h('blockquote')]
+    var component = function (properties, children) { return children }
     assert.equal(v(component, children), children)
   })
 
-  it('works with jsx', () => {
-    const Page = require('./fixtures/Page').default
-    assert(Page instanceof VNode)
-    assert.equal(Page.tagName, 'HTML')
-    assert.deepEqual(Page.properties, { lang: 'en' })
-    assert.equal(Page.children.length, 2)
-  })
+  it('works with jsx')
 
-  it('turns special properties into event hooks', () => {
-    const id = value => value
-    const vnode = v('div', {
-      click: id,
-      onClick: id,
-      onTap: id,
-      onMouseOver: id,
-      onWhatever: id
+  it('turns special properties into event hooks', function () {
+    var vnode = v('div', {
+      click: identity,
+      onClick: identity,
+      onTap: identity,
+      onMouseOver: identity,
+      onWhatever: identity
     })
 
     assert(!(vnode.properties.click instanceof EventHook))
     assert(vnode.properties.onClick instanceof EventHook)
     assert.equal(vnode.properties.onClick.event, 'click')
-    assert.equal(vnode.properties.onClick.listener, id)
+    assert.equal(vnode.properties.onClick.listener, identity)
     assert(vnode.properties.onTap instanceof EventHook)
     assert.equal(vnode.properties.onTap.event, 'tap')
     assert(vnode.properties.onMouseOver instanceof EventHook)
@@ -52,7 +49,7 @@ describe('v()', () => {
   })
 
   it('aliases common attribute names', () => {
-    const vnode = v('div', {
+    var vnode = v('div', {
       class: 'a',
       for: 'b'
     })
