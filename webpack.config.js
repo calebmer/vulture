@@ -5,6 +5,12 @@ var optimize = webpack.optimize
 
 var minify = process.env.WEBPACK_MINIFY === 'true'
 
+var banner = [
+  'Vulture',
+  '(c) 2016 Caleb Meredith',
+  'Released under the MIT License.'
+].join('\n')
+
 module.exports = {
   entry: './webpack.entry.js',
   output: {
@@ -16,11 +22,12 @@ module.exports = {
   target: 'web',
   bail: true,
   plugins: compact([
+    new webpack.BannerPlugin(banner),
     new optimize.DedupePlugin(),
     minify ?
     new optimize.UglifyJsPlugin({
       mangle: true,
-      comments: false
+      comments: /Vulture/
     }) : null
   ])
 }
