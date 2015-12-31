@@ -3457,7 +3457,10 @@ var Vulture =
 	 */
 
 	function forEach(rootNode, iteratee) {
-	  map(rootNode, node => (iteratee(node, rootNode), node))
+	  map(rootNode, function (node) {
+	    iteratee(node, rootNode)
+	    return node
+	  })
 	}
 
 	module.exports = forEach
@@ -3481,7 +3484,9 @@ var Vulture =
 
 	function reduce(rootNode, reducer, initialValue) {
 	  var value = initialValue
-	  forEach(rootNode, node => value = reducer(value, node, rootNode))
+	  forEach(rootNode, function (node) {
+	    value = reducer(value, node, rootNode)
+	  })
 	  return value
 	}
 
