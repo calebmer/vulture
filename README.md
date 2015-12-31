@@ -77,14 +77,5 @@ For a state implementation, see:
 - `vulture-redux`: TODO.
 - `vulture-observable`: TODO.
 
-## Size
-Here are some size comparisons of `vulture` and the popular `vulture-redux` state implementation with other popular frameworks.
-
-- ReactJS: TODO.
-- Angular: TODO.
-- Angular 2: TODO.
-- Ember: TODO.
-- Vue: TODO.
-
 ## API
 TODO.
