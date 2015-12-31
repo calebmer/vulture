@@ -1,3 +1,8 @@
+/*!
+ * Vulture
+ * (c) 2016 Caleb Meredith
+ * Released under the MIT License.
+ */
 var Vulture =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
