@@ -73,6 +73,7 @@ var Vulture =
 	v.Hook = __webpack_require__(88)
 	v.Thunk = __webpack_require__(92)
 	v.Widget = __webpack_require__(93)
+	v.EventHook = __webpack_require__(87)
 
 	module.exports = v
 
