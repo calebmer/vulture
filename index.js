@@ -1,5 +1,6 @@
 var v = require('./lib/v')
 
+v.v = v
 v.VNode = require('virtual-dom/vnode/vnode')
 v.VText = require('virtual-dom/vnode/vtext')
 v.Hook = require('./lib/Hook')
