@@ -1,6 +1,11 @@
-var Vulture = require('./index')
+var assign = require('lodash/object/assign')
 
-Vulture.renderToDOM = require('./lib/renderToDOM')
-Vulture.render = require('./lib/renderToDOM')
+var Vulture = require('./lib/v')
+
+assign(
+  Vulture,
+  require('./dom'),
+  require('./utils')
+)
 
 module.exports = Vulture
