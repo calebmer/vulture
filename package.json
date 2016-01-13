@@ -23,6 +23,8 @@
     "index.js",
     "dom.js",
     "string.js",
+    "extras.js",
+    "jsx.js",
     "lib"
   ],
   "scripts": {
