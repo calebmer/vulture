@@ -1,14 +1,14 @@
-var v = require('./lib/v')
+var Vulture = require('./lib/v')
 
-v.v = v
-v.map = require('./lib/map')
-v.forEach = require('./lib/forEach')
-v.reduce = require('./lib/reduce')
-v.VNode = require('virtual-dom/vnode/vnode')
-v.VText = require('virtual-dom/vnode/vtext')
-v.Hook = require('./lib/Hook')
-v.Thunk = require('./lib/Thunk')
-v.Widget = require('./lib/Widget')
-v.EventHook = require('./lib/EventHook')
+Vulture.v = require('./lib/v')
+Vulture.map = require('./lib/map')
+Vulture.forEach = require('./lib/forEach')
+Vulture.reduce = require('./lib/reduce')
+Vulture.VNode = require('virtual-dom/vnode/vnode')
+Vulture.VText = require('virtual-dom/vnode/vtext')
+Vulture.Hook = require('./lib/Hook')
+Vulture.Thunk = require('./lib/Thunk')
+Vulture.Widget = require('./lib/Widget')
+Vulture.EventHook = require('./lib/EventHook')
 
-module.exports = v
+module.exports = Vulture

@@ -1,6 +1,6 @@
-var v = require('./lib/renderToDOM')
+var Vulture = require('./lib/renderToDOM')
 
-v.renderToDOM = require('./lib/renderToDOM')
-v.render = require('./lib/renderToDOM')
+Vulture.renderToDOM = require('./lib/renderToDOM')
+Vulture.render = require('./lib/renderToDOM')
 
-module.exports = v
+module.exports = Vulture
