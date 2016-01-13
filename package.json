@@ -29,6 +29,7 @@
   ],
   "scripts": {
     "test": "$(npm bin)/mocha test/*.test.js",
+    "lint": "$(npm bin)/standard",
     "build": "npm run build-max && npm run build-min",
     "build-max": "WEBPACK_MINIFY=false $(npm bin)/webpack",
     "build-min": "WEBPACK_MINIFY=true $(npm bin)/webpack",
@@ -48,6 +49,7 @@
   "devDependencies": {
     "jsdom": "^7.2.2",
     "mocha": "^2.3.4",
+    "standard": "^5.4.1",
     "webpack": "^1.12.9"
   }
 }

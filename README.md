@@ -1,4 +1,7 @@
 # vulture
+
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+
 `vulture` is a front-end framework optimized for progressive enhancement and accessibility. Everything rendered with `vulture` *must* be accessible for everyone, even those who have chosen to disable JavaScript.
 
 To accomplish this goal, `vulture` uses the concept of isomorphism, shared code on both the client and server. Therefore (while not required) it is highly recommended that your web app server (sometimes lovingly called the front-end-back-end) use node.js.
