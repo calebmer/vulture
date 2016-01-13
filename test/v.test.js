@@ -9,22 +9,6 @@ var Series = require('./fixtures/series')
 var sampleData = Series.sampleData
 
 describe('v()', function () {
-  it('accepts a parameter rest as the children parameter', function () {
-    var children = [h('div'), h('p'), h('blockquote')]
-    assert.deepEqual(v.apply(null, ['div', {}].concat(children)).children, children)
-    assert.deepEqual(v.apply(null, ['div'].concat(children)).children, children)
-  })
-
-  it('will call a function', function () {
-    assert.deepEqual(v(Series, sampleData), Series(sampleData))
-  })
-
-  it('will call a function with children', function () {
-    var children = [h('div'), h('p'), h('blockquote')]
-    var component = function (properties, children) { return children }
-    assert.equal(v(component, children), children)
-  })
-
   it('works with jsx')
 
   it('turns special properties into event hooks', function () {
