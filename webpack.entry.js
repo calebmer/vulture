@@ -5,7 +5,7 @@ var Vulture = require('./lib/v')
 assign(
   Vulture,
   require('./dom'),
-  require('./utils')
+  require('./extras')
 )
 
 module.exports = Vulture
