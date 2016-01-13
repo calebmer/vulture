@@ -33,11 +33,8 @@
     "build": "npm run build-max && npm run build-min",
     "build-max": "WEBPACK_MINIFY=false $(npm bin)/webpack",
     "build-min": "WEBPACK_MINIFY=true $(npm bin)/webpack",
-    "preversion": "npm test && npm run build && git add dist",
-    "release": "npm run release-patch",
-    "release-patch": "git checkout master && npm version patch && git push origin master --tags && npm publish",
-    "release-minor": "git checkout master && npm version minor && git push origin master --tags && npm publish",
-    "release-major": "git checkout master && npm version major && git push origin master --tags && npm publish"
+    "preversion": "git checkout master && npm run lint && npm test && npm run build && git add dist",
+    "postversion": "git push origin master --tags && npm publish"
   },
   "dependencies": {
     "es6-weak-map": "^2.0.1",
