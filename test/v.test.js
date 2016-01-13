@@ -11,6 +11,34 @@ var sampleData = Series.sampleData
 describe('v()', function () {
   it('works with jsx')
 
+  it('will default to div when there is no tag name', function () {
+    assert.deepEqual(
+      v({}, []),
+      v('div', {}, [])
+    )
+  })
+
+  it('will work when there is no properties', function () {
+    assert.deepEqual(
+      v('div', ['child']),
+      v('div', {}, ['child'])
+    )
+  })
+
+  it('will work when there is only children', function () {
+    assert.deepEqual(
+      v(['child']),
+      v('div', {}, ['child'])
+    )
+  })
+
+  it('will work with nothing', function () {
+    assert.deepEqual(
+      v(),
+      v('div', {}, [])
+    )
+  })
+
   it('turns special properties into event hooks', function () {
     var vnode = v('div', {
       click: identity,
