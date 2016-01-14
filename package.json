@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "lodash": "^3.10.1",
+    "vdom-thunk": "^3.0.0",
     "vdom-to-html": "^2.2.0",
     "virtual-dom": "^2.1.1"
   },
