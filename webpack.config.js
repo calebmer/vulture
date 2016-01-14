@@ -3,7 +3,7 @@ var compact = require('lodash/array/compact')
 
 var optimize = webpack.optimize
 
-var minify = process.env.WEBPACK_MINIFY === 'true'
+var minify = process.env.MINIFY === 'true'
 
 var banner = [
   'Vulture',

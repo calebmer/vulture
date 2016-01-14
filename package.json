@@ -31,8 +31,8 @@
     "test": "$(npm bin)/mocha test/*.test.js",
     "lint": "$(npm bin)/standard *.js lib/**/*.js test/**/*.js",
     "build": "npm run build-max && npm run build-min",
-    "build-max": "WEBPACK_MINIFY=false $(npm bin)/webpack",
-    "build-min": "WEBPACK_MINIFY=true $(npm bin)/webpack",
+    "build-max": "MINIFY=false $(npm bin)/webpack",
+    "build-min": "MINIFY=true $(npm bin)/webpack",
     "preversion": "git checkout master && npm run lint && npm test && npm run build && git add dist",
     "postversion": "git push origin master --tags && npm publish"
   },
