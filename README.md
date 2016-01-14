@@ -20,9 +20,9 @@ render(<p>Hello, world!</p>)
 ```
 
 ## Strengths
+- **Small**. With one of the smallest file sizes of any front-end framework, `vulture` will *not* get in your way. Finally there is a front-end framework which is not a behemoth for users to download.
 - Blazing fast. The virtual DOM is super efficient as it allows for micro diffing and patching of the rendered DOM.
-- Isomorphic. `vulture` can easily go through an initial server render, and state is handled in such a way that it may be easily communicated across page visits.
-- Small. With one of the smallest file sizes of any front-end framework, `vulture` will *not* get in your way. Finally there is a front-end framework which is not a behemoth for users to download.
+- Isomorphic. `vulture` can easily go through an initial server render, and state is handled in such a way that it may be easily communicated across page visits. Whether it be the client, server, service worker, or even refrigerator, `vulture` can run.
 - Traversable virtual DOM. Other virtual DOM implementations like ReactJS are not easily traversable, `vulture`‘s virtual DOM output *is*. This allows for a wide range of tooling which just wasn’t possible when using ReactJS.
 
 ## Components
