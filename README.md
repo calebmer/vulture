@@ -72,13 +72,5 @@ This also means that our rendered virtual DOM trees are not lazy as they are in 
 ## Library or Framework?
 In API, `vulture` is really more of a library then a framework. However, with  the entire `vulture` ecosystem, you can easily replace your front-end framework with vulture. The ecosystem and mindset used when developing with `vulture` is what makes it a framework.
 
-## State
-There is no default way to handle state in vulture, this is because HTTP is intrinsically stateless. Furthermore, any state you might have must be global to a virtual DOM tree.
-
-For a state implementation, see:
-
-- `vulture-redux`: TODO.
-- `vulture-observable`: TODO.
-
 ## API
 TODO.
