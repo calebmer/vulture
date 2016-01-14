@@ -54,7 +54,7 @@ function Person(data) {
   return (
     v('article', [
       v('h1', firstName + ' ' + lastName),
-      StarButton({
+      ButtonStar({
         target: firstName,
         isStarred: isStarred
       })
