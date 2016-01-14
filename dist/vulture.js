@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.0.0-0
+ * Vulture 3.0.0-1
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -57,7 +57,7 @@ var Vulture =
 	assign(
 	  Vulture,
 	  __webpack_require__(92),
-	  __webpack_require__(157)
+	  __webpack_require__(110)
 	)
 
 	module.exports = Vulture
@@ -3529,23 +3529,9 @@ var Vulture =
 /* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var WeakMap = __webpack_require__(94)
-	var createElement = __webpack_require__(139)
-	var diffTrees = __webpack_require__(146)
-	var patchDOM = __webpack_require__(150)
-	var virtualize = __webpack_require__(155)
-
-	/**
-	 * Stores the container node and rendered virtual DOM for usage in diffing in
-	 * later renders. This is only exported for testing purposes.
-	 *
-	 * @private
-	 */
-
-	// TODO: Remove `es6-weak-map` dependency
-	var lastRenders = WeakMap ? new WeakMap() : ({
-	  has: fun
-	})
+	var createElement = __webpack_require__(94)
+	var diffTrees = __webpack_require__(101)
+	var patchDOM = __webpack_require__(105)
 
 	/**
 	 * Renders a virtual tree to a container dom node. Once rendered, the virtual
@@ -3562,37 +3548,71 @@ var Vulture =
 	 */
 
 	function renderToDOM (nextVNode, containerNode, document) {
-	  var lastVNode
 	  var rootNode = containerNode.firstElementChild
+	  var lastVNode = lastRenders.get(containerNode)
 
 	  if (rootNode !== containerNode.lastElementChild) {
-	    throw new Error('Parent node have no more than one child.')
+	    throw new Error('Parent node may not have more than one child.')
 	  }
 
-	  if (lastRenders.has(containerNode)) {
+	  if (rootNode && lastVNode) {
 	    // If a render exists, use it to get patches.
-	    lastVNode = lastRenders.get(containerNode)
-	    updateDOM(lastVNode, nextVNode, rootNode)
-	  } else if (rootNode) {
-	    // If there is a root node, get a virtual dom representation and patch the
-	    // DOM with it. We remove properties from the virtualized node to eliminate
-	    // wierd side effects, such as where `attributes.class` could conflict with
-	    // `className`.
-
-	    // TODO: Remove virtualization, just replace the DOM
-	    lastVNode = removeProperties(virtualize(rootNode))
 	    updateDOM(lastVNode, nextVNode, rootNode)
 	  } else {
-	    // If the parent node is empty, create a new dom node.
+	    // Create a new DOM node.
 	    var nextNode = createElement(nextVNode, { document: document })
-	    containerNode.appendChild(nextNode)
+
+	    if (rootNode) {
+	      // If a node already exists, replace it.
+	      containerNode.replaceChild(nextNode, rootNode)
+	    } else {
+	      // Otherwise, add the child.
+	      containerNode.appendChild(nextNode)
+	    }
 	  }
 
 	  lastRenders.set(containerNode, nextVNode)
 	}
 
-	renderToDOM.lastRenders = lastRenders
 	module.exports = renderToDOM
+
+	/**
+	 * Stores the container node and rendered virtual DOM for usage in diffing in
+	 * later renders.
+	 *
+	 * Has a super simple polyfill implementation.
+	 *
+	 * @private
+	 */
+
+	var lastRenders = WeakMap ? new WeakMap() : ({
+	  // An array of key/value tuples
+	  store: [],
+
+	  has: function has (key) {
+	    for (var entry in this.store) {
+	      if (entry[0] === key) {
+	        return true
+	      }
+	    }
+	    return false
+	  },
+
+	  get: function get (key) {
+	    for (var entry in this.store) {
+	      if (entry[0] === key) {
+	        return entry[1]
+	      }
+	    }
+	  },
+
+	  set: function set (key, value) {
+	    this.store.push([key, value])
+	  }
+	})
+
+	// Only exported for testing.
+	renderToDOM.lastRenders = lastRenders
 
 	/**
 	 * Diff the two virtual nodes then patch the DOM node.
@@ -3609,1237 +3629,28 @@ var Vulture =
 	  patchDOM(rootNode, patches)
 	}
 
-	/**
-	 * Remove all virtual dom properties from the virtual node.
-	 *
-	 * @private
-	 * @see renderToDOM
-	 * @param {VNode} The node we are removing properties from.
-	 * @param {VNode} The node with properties removed.
-	 */
-
-	function removeProperties (node) {
-	  if (node.properties) {
-	    node.properties = {}
-	  }
-	  if (node.children) {
-	    node.children = node.children.map(removeProperties)
-	  }
-	  return node
-	}
-
 
 /***/ },
 /* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	module.exports = __webpack_require__(95)() ? WeakMap : __webpack_require__(96);
-
-
-/***/ },
-/* 95 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	module.exports = function () {
-		var weakMap, x;
-		if (typeof WeakMap !== 'function') return false;
-		try {
-			// WebKit doesn't support arguments and crashes
-			weakMap = new WeakMap([[x = {}, 'one'], [{}, 'two'], [{}, 'three']]);
-		} catch (e) {
-			return false;
-		}
-		if (String(weakMap) !== '[object WeakMap]') return false;
-		if (typeof weakMap.set !== 'function') return false;
-		if (weakMap.set({}, 1) !== weakMap) return false;
-		if (typeof weakMap.delete !== 'function') return false;
-		if (typeof weakMap.has !== 'function') return false;
-		if (weakMap.get(x) !== 'one') return false;
-
-		return true;
-	};
-
-
-/***/ },
-/* 96 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var setPrototypeOf    = __webpack_require__(97)
-	  , object            = __webpack_require__(103)
-	  , value             = __webpack_require__(101)
-	  , randomUniq        = __webpack_require__(104)
-	  , d                 = __webpack_require__(105)
-	  , getIterator       = __webpack_require__(117)
-	  , forOf             = __webpack_require__(137)
-	  , toStringTagSymbol = __webpack_require__(129).toStringTag
-	  , isNative          = __webpack_require__(138)
-
-	  , isArray = Array.isArray, defineProperty = Object.defineProperty
-	  , hasOwnProperty = Object.prototype.hasOwnProperty, getPrototypeOf = Object.getPrototypeOf
-	  , WeakMapPoly;
-
-	module.exports = WeakMapPoly = function (/*iterable*/) {
-		var iterable = arguments[0], self;
-		if (!(this instanceof WeakMapPoly)) throw new TypeError('Constructor requires \'new\'');
-		if (isNative && setPrototypeOf && (WeakMap !== WeakMapPoly)) {
-			self = setPrototypeOf(new WeakMap(), getPrototypeOf(this));
-		} else {
-			self = this;
-		}
-		if (iterable != null) {
-			if (!isArray(iterable)) iterable = getIterator(iterable);
-		}
-		defineProperty(self, '__weakMapData__', d('c', '$weakMap$' + randomUniq()));
-		if (!iterable) return self;
-		forOf(iterable, function (val) {
-			value(val);
-			self.set(val[0], val[1]);
-		});
-		return self;
-	};
-
-	if (isNative) {
-		if (setPrototypeOf) setPrototypeOf(WeakMapPoly, WeakMap);
-		WeakMapPoly.prototype = Object.create(WeakMap.prototype, {
-			constructor: d(WeakMapPoly)
-		});
-	}
-
-	Object.defineProperties(WeakMapPoly.prototype, {
-		delete: d(function (key) {
-			if (hasOwnProperty.call(object(key), this.__weakMapData__)) {
-				delete key[this.__weakMapData__];
-				return true;
-			}
-			return false;
-		}),
-		get: d(function (key) {
-			if (hasOwnProperty.call(object(key), this.__weakMapData__)) {
-				return key[this.__weakMapData__];
-			}
-		}),
-		has: d(function (key) {
-			return hasOwnProperty.call(object(key), this.__weakMapData__);
-		}),
-		set: d(function (key, value) {
-			defineProperty(object(key), this.__weakMapData__, d('c', value));
-			return this;
-		}),
-		toString: d(function () { return '[object WeakMap]'; })
-	});
-	defineProperty(WeakMapPoly.prototype, toStringTagSymbol, d('c', 'WeakMap'));
-
-
-/***/ },
-/* 97 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(98)()
-		? Object.setPrototypeOf
-		: __webpack_require__(99);
-
-
-/***/ },
-/* 98 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var create = Object.create, getPrototypeOf = Object.getPrototypeOf
-	  , x = {};
-
-	module.exports = function (/*customCreate*/) {
-		var setPrototypeOf = Object.setPrototypeOf
-		  , customCreate = arguments[0] || create;
-		if (typeof setPrototypeOf !== 'function') return false;
-		return getPrototypeOf(setPrototypeOf(customCreate(null), x)) === x;
-	};
-
-
-/***/ },
-/* 99 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Big thanks to @WebReflection for sorting this out
-	// https://gist.github.com/WebReflection/5593554
-
-	'use strict';
-
-	var isObject      = __webpack_require__(100)
-	  , value         = __webpack_require__(101)
-
-	  , isPrototypeOf = Object.prototype.isPrototypeOf
-	  , defineProperty = Object.defineProperty
-	  , nullDesc = { configurable: true, enumerable: false, writable: true,
-			value: undefined }
-	  , validate;
-
-	validate = function (obj, prototype) {
-		value(obj);
-		if ((prototype === null) || isObject(prototype)) return obj;
-		throw new TypeError('Prototype must be null or an object');
-	};
-
-	module.exports = (function (status) {
-		var fn, set;
-		if (!status) return null;
-		if (status.level === 2) {
-			if (status.set) {
-				set = status.set;
-				fn = function (obj, prototype) {
-					set.call(validate(obj, prototype), prototype);
-					return obj;
-				};
-			} else {
-				fn = function (obj, prototype) {
-					validate(obj, prototype).__proto__ = prototype;
-					return obj;
-				};
-			}
-		} else {
-			fn = function self(obj, prototype) {
-				var isNullBase;
-				validate(obj, prototype);
-				isNullBase = isPrototypeOf.call(self.nullPolyfill, obj);
-				if (isNullBase) delete self.nullPolyfill.__proto__;
-				if (prototype === null) prototype = self.nullPolyfill;
-				obj.__proto__ = prototype;
-				if (isNullBase) defineProperty(self.nullPolyfill, '__proto__', nullDesc);
-				return obj;
-			};
-		}
-		return Object.defineProperty(fn, 'level', { configurable: false,
-			enumerable: false, writable: false, value: status.level });
-	}((function () {
-		var x = Object.create(null), y = {}, set
-		  , desc = Object.getOwnPropertyDescriptor(Object.prototype, '__proto__');
-
-		if (desc) {
-			try {
-				set = desc.set; // Opera crashes at this point
-				set.call(x, y);
-			} catch (ignore) { }
-			if (Object.getPrototypeOf(x) === y) return { set: set, level: 2 };
-		}
-
-		x.__proto__ = y;
-		if (Object.getPrototypeOf(x) === y) return { level: 2 };
-
-		x = {};
-		x.__proto__ = y;
-		if (Object.getPrototypeOf(x) === y) return { level: 1 };
-
-		return false;
-	}())));
-
-	__webpack_require__(102);
-
-
-/***/ },
-/* 100 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var map = { function: true, object: true };
-
-	module.exports = function (x) {
-		return ((x != null) && map[typeof x]) || false;
-	};
-
-
-/***/ },
-/* 101 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	module.exports = function (value) {
-		if (value == null) throw new TypeError("Cannot use null or undefined");
-		return value;
-	};
-
-
-/***/ },
-/* 102 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Workaround for http://code.google.com/p/v8/issues/detail?id=2804
-
-	'use strict';
-
-	var create = Object.create, shim;
-
-	if (!__webpack_require__(98)()) {
-		shim = __webpack_require__(99);
-	}
-
-	module.exports = (function () {
-		var nullObject, props, desc;
-		if (!shim) return create;
-		if (shim.level !== 1) return create;
-
-		nullObject = {};
-		props = {};
-		desc = { configurable: false, enumerable: false, writable: true,
-			value: undefined };
-		Object.getOwnPropertyNames(Object.prototype).forEach(function (name) {
-			if (name === '__proto__') {
-				props[name] = { configurable: true, enumerable: false, writable: true,
-					value: undefined };
-				return;
-			}
-			props[name] = desc;
-		});
-		Object.defineProperties(nullObject, props);
-
-		Object.defineProperty(shim, 'nullPolyfill', { configurable: false,
-			enumerable: false, writable: false, value: nullObject });
-
-		return function (prototype, props) {
-			return create((prototype === null) ? nullObject : prototype, props);
-		};
-	}());
-
-
-/***/ },
-/* 103 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var isObject = __webpack_require__(100);
-
-	module.exports = function (value) {
-		if (!isObject(value)) throw new TypeError(value + " is not an Object");
-		return value;
-	};
-
-
-/***/ },
-/* 104 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var generated = Object.create(null)
-
-	  , random = Math.random;
-
-	module.exports = function () {
-		var str;
-		do { str = random().toString(36).slice(2); } while (generated[str]);
-		return str;
-	};
-
-
-/***/ },
-/* 105 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var assign        = __webpack_require__(106)
-	  , normalizeOpts = __webpack_require__(112)
-	  , isCallable    = __webpack_require__(113)
-	  , contains      = __webpack_require__(114)
-
-	  , d;
-
-	d = module.exports = function (dscr, value/*, options*/) {
-		var c, e, w, options, desc;
-		if ((arguments.length < 2) || (typeof dscr !== 'string')) {
-			options = value;
-			value = dscr;
-			dscr = null;
-		} else {
-			options = arguments[2];
-		}
-		if (dscr == null) {
-			c = w = true;
-			e = false;
-		} else {
-			c = contains.call(dscr, 'c');
-			e = contains.call(dscr, 'e');
-			w = contains.call(dscr, 'w');
-		}
-
-		desc = { value: value, configurable: c, enumerable: e, writable: w };
-		return !options ? desc : assign(normalizeOpts(options), desc);
-	};
-
-	d.gs = function (dscr, get, set/*, options*/) {
-		var c, e, options, desc;
-		if (typeof dscr !== 'string') {
-			options = set;
-			set = get;
-			get = dscr;
-			dscr = null;
-		} else {
-			options = arguments[3];
-		}
-		if (get == null) {
-			get = undefined;
-		} else if (!isCallable(get)) {
-			options = get;
-			get = set = undefined;
-		} else if (set == null) {
-			set = undefined;
-		} else if (!isCallable(set)) {
-			options = set;
-			set = undefined;
-		}
-		if (dscr == null) {
-			c = true;
-			e = false;
-		} else {
-			c = contains.call(dscr, 'c');
-			e = contains.call(dscr, 'e');
-		}
-
-		desc = { get: get, set: set, configurable: c, enumerable: e };
-		return !options ? desc : assign(normalizeOpts(options), desc);
-	};
-
-
-/***/ },
-/* 106 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(107)()
-		? Object.assign
-		: __webpack_require__(108);
-
-
-/***/ },
-/* 107 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	module.exports = function () {
-		var assign = Object.assign, obj;
-		if (typeof assign !== 'function') return false;
-		obj = { foo: 'raz' };
-		assign(obj, { bar: 'dwa' }, { trzy: 'trzy' });
-		return (obj.foo + obj.bar + obj.trzy) === 'razdwatrzy';
-	};
-
-
-/***/ },
-/* 108 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var keys  = __webpack_require__(109)
-	  , value = __webpack_require__(101)
-
-	  , max = Math.max;
-
-	module.exports = function (dest, src/*, …srcn*/) {
-		var error, i, l = max(arguments.length, 2), assign;
-		dest = Object(value(dest));
-		assign = function (key) {
-			try { dest[key] = src[key]; } catch (e) {
-				if (!error) error = e;
-			}
-		};
-		for (i = 1; i < l; ++i) {
-			src = arguments[i];
-			keys(src).forEach(assign);
-		}
-		if (error !== undefined) throw error;
-		return dest;
-	};
-
-
-/***/ },
-/* 109 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(110)()
-		? Object.keys
-		: __webpack_require__(111);
-
-
-/***/ },
-/* 110 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	module.exports = function () {
-		try {
-			Object.keys('primitive');
-			return true;
-		} catch (e) { return false; }
-	};
-
-
-/***/ },
-/* 111 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var keys = Object.keys;
-
-	module.exports = function (object) {
-		return keys(object == null ? object : Object(object));
-	};
-
-
-/***/ },
-/* 112 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var forEach = Array.prototype.forEach, create = Object.create;
-
-	var process = function (src, obj) {
-		var key;
-		for (key in src) obj[key] = src[key];
-	};
-
-	module.exports = function (options/*, …options*/) {
-		var result = create(null);
-		forEach.call(arguments, function (options) {
-			if (options == null) return;
-			process(Object(options), result);
-		});
-		return result;
-	};
-
-
-/***/ },
-/* 113 */
-/***/ function(module, exports) {
-
-	// Deprecated
-
-	'use strict';
-
-	module.exports = function (obj) { return typeof obj === 'function'; };
-
-
-/***/ },
-/* 114 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(115)()
-		? String.prototype.contains
-		: __webpack_require__(116);
-
-
-/***/ },
-/* 115 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var str = 'razdwatrzy';
-
-	module.exports = function () {
-		if (typeof str.contains !== 'function') return false;
-		return ((str.contains('dwa') === true) && (str.contains('foo') === false));
-	};
-
-
-/***/ },
-/* 116 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var indexOf = String.prototype.indexOf;
-
-	module.exports = function (searchString/*, position*/) {
-		return indexOf.call(this, searchString, arguments[1]) > -1;
-	};
-
-
-/***/ },
-/* 117 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var isArguments    = __webpack_require__(118)
-	  , isString       = __webpack_require__(119)
-	  , ArrayIterator  = __webpack_require__(120)
-	  , StringIterator = __webpack_require__(134)
-	  , iterable       = __webpack_require__(135)
-	  , iteratorSymbol = __webpack_require__(129).iterator;
-
-	module.exports = function (obj) {
-		if (typeof iterable(obj)[iteratorSymbol] === 'function') return obj[iteratorSymbol]();
-		if (isArguments(obj)) return new ArrayIterator(obj);
-		if (isString(obj)) return new StringIterator(obj);
-		return new ArrayIterator(obj);
-	};
-
-
-/***/ },
-/* 118 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var toString = Object.prototype.toString
-
-	  , id = toString.call((function () { return arguments; }()));
-
-	module.exports = function (x) { return (toString.call(x) === id); };
-
-
-/***/ },
-/* 119 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var toString = Object.prototype.toString
-
-	  , id = toString.call('');
-
-	module.exports = function (x) {
-		return (typeof x === 'string') || (x && (typeof x === 'object') &&
-			((x instanceof String) || (toString.call(x) === id))) || false;
-	};
-
-
-/***/ },
-/* 120 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var setPrototypeOf = __webpack_require__(97)
-	  , contains       = __webpack_require__(114)
-	  , d              = __webpack_require__(105)
-	  , Iterator       = __webpack_require__(121)
-
-	  , defineProperty = Object.defineProperty
-	  , ArrayIterator;
-
-	ArrayIterator = module.exports = function (arr, kind) {
-		if (!(this instanceof ArrayIterator)) return new ArrayIterator(arr, kind);
-		Iterator.call(this, arr);
-		if (!kind) kind = 'value';
-		else if (contains.call(kind, 'key+value')) kind = 'key+value';
-		else if (contains.call(kind, 'key')) kind = 'key';
-		else kind = 'value';
-		defineProperty(this, '__kind__', d('', kind));
-	};
-	if (setPrototypeOf) setPrototypeOf(ArrayIterator, Iterator);
-
-	ArrayIterator.prototype = Object.create(Iterator.prototype, {
-		constructor: d(ArrayIterator),
-		_resolve: d(function (i) {
-			if (this.__kind__ === 'value') return this.__list__[i];
-			if (this.__kind__ === 'key+value') return [i, this.__list__[i]];
-			return i;
-		}),
-		toString: d(function () { return '[object Array Iterator]'; })
-	});
-
-
-/***/ },
-/* 121 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var clear    = __webpack_require__(122)
-	  , assign   = __webpack_require__(106)
-	  , callable = __webpack_require__(123)
-	  , value    = __webpack_require__(101)
-	  , d        = __webpack_require__(105)
-	  , autoBind = __webpack_require__(124)
-	  , Symbol   = __webpack_require__(129)
-
-	  , defineProperty = Object.defineProperty
-	  , defineProperties = Object.defineProperties
-	  , Iterator;
-
-	module.exports = Iterator = function (list, context) {
-		if (!(this instanceof Iterator)) return new Iterator(list, context);
-		defineProperties(this, {
-			__list__: d('w', value(list)),
-			__context__: d('w', context),
-			__nextIndex__: d('w', 0)
-		});
-		if (!context) return;
-		callable(context.on);
-		context.on('_add', this._onAdd);
-		context.on('_delete', this._onDelete);
-		context.on('_clear', this._onClear);
-	};
-
-	defineProperties(Iterator.prototype, assign({
-		constructor: d(Iterator),
-		_next: d(function () {
-			var i;
-			if (!this.__list__) return;
-			if (this.__redo__) {
-				i = this.__redo__.shift();
-				if (i !== undefined) return i;
-			}
-			if (this.__nextIndex__ < this.__list__.length) return this.__nextIndex__++;
-			this._unBind();
-		}),
-		next: d(function () { return this._createResult(this._next()); }),
-		_createResult: d(function (i) {
-			if (i === undefined) return { done: true, value: undefined };
-			return { done: false, value: this._resolve(i) };
-		}),
-		_resolve: d(function (i) { return this.__list__[i]; }),
-		_unBind: d(function () {
-			this.__list__ = null;
-			delete this.__redo__;
-			if (!this.__context__) return;
-			this.__context__.off('_add', this._onAdd);
-			this.__context__.off('_delete', this._onDelete);
-			this.__context__.off('_clear', this._onClear);
-			this.__context__ = null;
-		}),
-		toString: d(function () { return '[object Iterator]'; })
-	}, autoBind({
-		_onAdd: d(function (index) {
-			if (index >= this.__nextIndex__) return;
-			++this.__nextIndex__;
-			if (!this.__redo__) {
-				defineProperty(this, '__redo__', d('c', [index]));
-				return;
-			}
-			this.__redo__.forEach(function (redo, i) {
-				if (redo >= index) this.__redo__[i] = ++redo;
-			}, this);
-			this.__redo__.push(index);
-		}),
-		_onDelete: d(function (index) {
-			var i;
-			if (index >= this.__nextIndex__) return;
-			--this.__nextIndex__;
-			if (!this.__redo__) return;
-			i = this.__redo__.indexOf(index);
-			if (i !== -1) this.__redo__.splice(i, 1);
-			this.__redo__.forEach(function (redo, i) {
-				if (redo > index) this.__redo__[i] = --redo;
-			}, this);
-		}),
-		_onClear: d(function () {
-			if (this.__redo__) clear.call(this.__redo__);
-			this.__nextIndex__ = 0;
-		})
-	})));
-
-	defineProperty(Iterator.prototype, Symbol.iterator, d(function () {
-		return this;
-	}));
-	defineProperty(Iterator.prototype, Symbol.toStringTag, d('', 'Iterator'));
-
-
-/***/ },
-/* 122 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Inspired by Google Closure:
-	// http://closure-library.googlecode.com/svn/docs/
-	// closure_goog_array_array.js.html#goog.array.clear
-
-	'use strict';
-
-	var value = __webpack_require__(101);
-
-	module.exports = function () {
-		value(this).length = 0;
-		return this;
-	};
-
-
-/***/ },
-/* 123 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	module.exports = function (fn) {
-		if (typeof fn !== 'function') throw new TypeError(fn + " is not a function");
-		return fn;
-	};
-
-
-/***/ },
-/* 124 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var copy       = __webpack_require__(125)
-	  , map        = __webpack_require__(126)
-	  , callable   = __webpack_require__(123)
-	  , validValue = __webpack_require__(101)
-
-	  , bind = Function.prototype.bind, defineProperty = Object.defineProperty
-	  , hasOwnProperty = Object.prototype.hasOwnProperty
-	  , define;
-
-	define = function (name, desc, bindTo) {
-		var value = validValue(desc) && callable(desc.value), dgs;
-		dgs = copy(desc);
-		delete dgs.writable;
-		delete dgs.value;
-		dgs.get = function () {
-			if (hasOwnProperty.call(this, name)) return value;
-			desc.value = bind.call(value, (bindTo == null) ? this : this[bindTo]);
-			defineProperty(this, name, desc);
-			return this[name];
-		};
-		return dgs;
-	};
-
-	module.exports = function (props/*, bindTo*/) {
-		var bindTo = arguments[1];
-		return map(props, function (desc, name) {
-			return define(name, desc, bindTo);
-		});
-	};
-
-
-/***/ },
-/* 125 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var assign = __webpack_require__(106)
-	  , value  = __webpack_require__(101);
-
-	module.exports = function (obj) {
-		var copy = Object(value(obj));
-		if (copy !== obj) return copy;
-		return assign({}, obj);
-	};
-
-
-/***/ },
-/* 126 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var callable = __webpack_require__(123)
-	  , forEach  = __webpack_require__(127)
-
-	  , call = Function.prototype.call;
-
-	module.exports = function (obj, cb/*, thisArg*/) {
-		var o = {}, thisArg = arguments[2];
-		callable(cb);
-		forEach(obj, function (value, key, obj, index) {
-			o[key] = call.call(cb, thisArg, value, key, obj, index);
-		});
-		return o;
-	};
-
-
-/***/ },
-/* 127 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(128)('forEach');
-
-
-/***/ },
-/* 128 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Internal method, used by iteration functions.
-	// Calls a function for each key-value pair found in object
-	// Optionally takes compareFn to iterate object in specific order
-
-	'use strict';
-
-	var callable = __webpack_require__(123)
-	  , value    = __webpack_require__(101)
-
-	  , bind = Function.prototype.bind, call = Function.prototype.call, keys = Object.keys
-	  , propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-	module.exports = function (method, defVal) {
-		return function (obj, cb/*, thisArg, compareFn*/) {
-			var list, thisArg = arguments[2], compareFn = arguments[3];
-			obj = Object(value(obj));
-			callable(cb);
-
-			list = keys(obj);
-			if (compareFn) {
-				list.sort((typeof compareFn === 'function') ? bind.call(compareFn, obj) : undefined);
-			}
-			if (typeof method !== 'function') method = list[method];
-			return call.call(method, list, function (key, index) {
-				if (!propertyIsEnumerable.call(obj, key)) return defVal;
-				return call.call(cb, thisArg, obj[key], key, obj, index);
-			});
-		};
-	};
-
-
-/***/ },
-/* 129 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(130)() ? Symbol : __webpack_require__(131);
-
-
-/***/ },
-/* 130 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	module.exports = function () {
-		var symbol;
-		if (typeof Symbol !== 'function') return false;
-		symbol = Symbol('test symbol');
-		try { String(symbol); } catch (e) { return false; }
-		if (typeof Symbol.iterator === 'symbol') return true;
-
-		// Return 'true' for polyfills
-		if (typeof Symbol.isConcatSpreadable !== 'object') return false;
-		if (typeof Symbol.iterator !== 'object') return false;
-		if (typeof Symbol.toPrimitive !== 'object') return false;
-		if (typeof Symbol.toStringTag !== 'object') return false;
-		if (typeof Symbol.unscopables !== 'object') return false;
-
-		return true;
-	};
-
-
-/***/ },
-/* 131 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// ES2015 Symbol polyfill for environments that do not support it (or partially support it_
-
-	'use strict';
-
-	var d              = __webpack_require__(105)
-	  , validateSymbol = __webpack_require__(132)
-
-	  , create = Object.create, defineProperties = Object.defineProperties
-	  , defineProperty = Object.defineProperty, objPrototype = Object.prototype
-	  , NativeSymbol, SymbolPolyfill, HiddenSymbol, globalSymbols = create(null);
-
-	if (typeof Symbol === 'function') NativeSymbol = Symbol;
-
-	var generateName = (function () {
-		var created = create(null);
-		return function (desc) {
-			var postfix = 0, name, ie11BugWorkaround;
-			while (created[desc + (postfix || '')]) ++postfix;
-			desc += (postfix || '');
-			created[desc] = true;
-			name = '@@' + desc;
-			defineProperty(objPrototype, name, d.gs(null, function (value) {
-				// For IE11 issue see:
-				// https://connect.microsoft.com/IE/feedbackdetail/view/1928508/
-				//    ie11-broken-getters-on-dom-objects
-				// https://github.com/medikoo/es6-symbol/issues/12
-				if (ie11BugWorkaround) return;
-				ie11BugWorkaround = true;
-				defineProperty(this, name, d(value));
-				ie11BugWorkaround = false;
-			}));
-			return name;
-		};
-	}());
-
-	// Internal constructor (not one exposed) for creating Symbol instances.
-	// This one is used to ensure that `someSymbol instanceof Symbol` always return false
-	HiddenSymbol = function Symbol(description) {
-		if (this instanceof HiddenSymbol) throw new TypeError('TypeError: Symbol is not a constructor');
-		return SymbolPolyfill(description);
-	};
-
-	// Exposed `Symbol` constructor
-	// (returns instances of HiddenSymbol)
-	module.exports = SymbolPolyfill = function Symbol(description) {
-		var symbol;
-		if (this instanceof Symbol) throw new TypeError('TypeError: Symbol is not a constructor');
-		symbol = create(HiddenSymbol.prototype);
-		description = (description === undefined ? '' : String(description));
-		return defineProperties(symbol, {
-			__description__: d('', description),
-			__name__: d('', generateName(description))
-		});
-	};
-	defineProperties(SymbolPolyfill, {
-		for: d(function (key) {
-			if (globalSymbols[key]) return globalSymbols[key];
-			return (globalSymbols[key] = SymbolPolyfill(String(key)));
-		}),
-		keyFor: d(function (s) {
-			var key;
-			validateSymbol(s);
-			for (key in globalSymbols) if (globalSymbols[key] === s) return key;
-		}),
-
-		// If there's native implementation of given symbol, let's fallback to it
-		// to ensure proper interoperability with other native functions e.g. Array.from
-		hasInstance: d('', (NativeSymbol && NativeSymbol.hasInstance) || SymbolPolyfill('hasInstance')),
-		isConcatSpreadable: d('', (NativeSymbol && NativeSymbol.isConcatSpreadable) ||
-			SymbolPolyfill('isConcatSpreadable')),
-		iterator: d('', (NativeSymbol && NativeSymbol.iterator) || SymbolPolyfill('iterator')),
-		match: d('', (NativeSymbol && NativeSymbol.match) || SymbolPolyfill('match')),
-		replace: d('', (NativeSymbol && NativeSymbol.replace) || SymbolPolyfill('replace')),
-		search: d('', (NativeSymbol && NativeSymbol.search) || SymbolPolyfill('search')),
-		species: d('', (NativeSymbol && NativeSymbol.species) || SymbolPolyfill('species')),
-		split: d('', (NativeSymbol && NativeSymbol.split) || SymbolPolyfill('split')),
-		toPrimitive: d('', (NativeSymbol && NativeSymbol.toPrimitive) || SymbolPolyfill('toPrimitive')),
-		toStringTag: d('', (NativeSymbol && NativeSymbol.toStringTag) || SymbolPolyfill('toStringTag')),
-		unscopables: d('', (NativeSymbol && NativeSymbol.unscopables) || SymbolPolyfill('unscopables'))
-	});
-
-	// Internal tweaks for real symbol producer
-	defineProperties(HiddenSymbol.prototype, {
-		constructor: d(SymbolPolyfill),
-		toString: d('', function () { return this.__name__; })
-	});
-
-	// Proper implementation of methods exposed on Symbol.prototype
-	// They won't be accessible on produced symbol instances as they derive from HiddenSymbol.prototype
-	defineProperties(SymbolPolyfill.prototype, {
-		toString: d(function () { return 'Symbol (' + validateSymbol(this).__description__ + ')'; }),
-		valueOf: d(function () { return validateSymbol(this); })
-	});
-	defineProperty(SymbolPolyfill.prototype, SymbolPolyfill.toPrimitive, d('',
-		function () { return validateSymbol(this); }));
-	defineProperty(SymbolPolyfill.prototype, SymbolPolyfill.toStringTag, d('c', 'Symbol'));
-
-	// Proper implementaton of toPrimitive and toStringTag for returned symbol instances
-	defineProperty(HiddenSymbol.prototype, SymbolPolyfill.toStringTag,
-		d('c', SymbolPolyfill.prototype[SymbolPolyfill.toStringTag]));
-
-	// Note: It's important to define `toPrimitive` as last one, as some implementations
-	// implement `toPrimitive` natively without implementing `toStringTag` (or other specified symbols)
-	// And that may invoke error in definition flow:
-	// See: https://github.com/medikoo/es6-symbol/issues/13#issuecomment-164146149
-	defineProperty(HiddenSymbol.prototype, SymbolPolyfill.toPrimitive,
-		d('c', SymbolPolyfill.prototype[SymbolPolyfill.toPrimitive]));
-
-
-/***/ },
-/* 132 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var isSymbol = __webpack_require__(133);
-
-	module.exports = function (value) {
-		if (!isSymbol(value)) throw new TypeError(value + " is not a symbol");
-		return value;
-	};
-
-
-/***/ },
-/* 133 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	module.exports = function (x) {
-		return (x && ((typeof x === 'symbol') || (x['@@toStringTag'] === 'Symbol'))) || false;
-	};
-
-
-/***/ },
-/* 134 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Thanks @mathiasbynens
-	// http://mathiasbynens.be/notes/javascript-unicode#iterating-over-symbols
-
-	'use strict';
-
-	var setPrototypeOf = __webpack_require__(97)
-	  , d              = __webpack_require__(105)
-	  , Iterator       = __webpack_require__(121)
-
-	  , defineProperty = Object.defineProperty
-	  , StringIterator;
-
-	StringIterator = module.exports = function (str) {
-		if (!(this instanceof StringIterator)) return new StringIterator(str);
-		str = String(str);
-		Iterator.call(this, str);
-		defineProperty(this, '__length__', d('', str.length));
-
-	};
-	if (setPrototypeOf) setPrototypeOf(StringIterator, Iterator);
-
-	StringIterator.prototype = Object.create(Iterator.prototype, {
-		constructor: d(StringIterator),
-		_next: d(function () {
-			if (!this.__list__) return;
-			if (this.__nextIndex__ < this.__length__) return this.__nextIndex__++;
-			this._unBind();
-		}),
-		_resolve: d(function (i) {
-			var char = this.__list__[i], code;
-			if (this.__nextIndex__ === this.__length__) return char;
-			code = char.charCodeAt(0);
-			if ((code >= 0xD800) && (code <= 0xDBFF)) return char + this.__list__[this.__nextIndex__++];
-			return char;
-		}),
-		toString: d(function () { return '[object String Iterator]'; })
-	});
-
-
-/***/ },
-/* 135 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var isIterable = __webpack_require__(136);
-
-	module.exports = function (value) {
-		if (!isIterable(value)) throw new TypeError(value + " is not iterable");
-		return value;
-	};
-
-
-/***/ },
-/* 136 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var isArguments    = __webpack_require__(118)
-	  , isString       = __webpack_require__(119)
-	  , iteratorSymbol = __webpack_require__(129).iterator
-
-	  , isArray = Array.isArray;
-
-	module.exports = function (value) {
-		if (value == null) return false;
-		if (isArray(value)) return true;
-		if (isString(value)) return true;
-		if (isArguments(value)) return true;
-		return (typeof value[iteratorSymbol] === 'function');
-	};
-
-
-/***/ },
-/* 137 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var isArguments = __webpack_require__(118)
-	  , callable    = __webpack_require__(123)
-	  , isString    = __webpack_require__(119)
-	  , get         = __webpack_require__(117)
-
-	  , isArray = Array.isArray, call = Function.prototype.call
-	  , some = Array.prototype.some;
-
-	module.exports = function (iterable, cb/*, thisArg*/) {
-		var mode, thisArg = arguments[2], result, doBreak, broken, i, l, char, code;
-		if (isArray(iterable) || isArguments(iterable)) mode = 'array';
-		else if (isString(iterable)) mode = 'string';
-		else iterable = get(iterable);
-
-		callable(cb);
-		doBreak = function () { broken = true; };
-		if (mode === 'array') {
-			some.call(iterable, function (value) {
-				call.call(cb, thisArg, value, doBreak);
-				if (broken) return true;
-			});
-			return;
-		}
-		if (mode === 'string') {
-			l = iterable.length;
-			for (i = 0; i < l; ++i) {
-				char = iterable[i];
-				if ((i + 1) < l) {
-					code = char.charCodeAt(0);
-					if ((code >= 0xD800) && (code <= 0xDBFF)) char += iterable[++i];
-				}
-				call.call(cb, thisArg, char, doBreak);
-				if (broken) break;
-			}
-			return;
-		}
-		result = iterable.next();
-
-		while (!result.done) {
-			call.call(cb, thisArg, result.value, doBreak);
-			if (broken) return;
-			result = iterable.next();
-		}
-	};
-
-
-/***/ },
-/* 138 */
-/***/ function(module, exports) {
-
-	// Exports true if environment provides native `WeakMap` implementation, whatever that is.
-
-	'use strict';
-
-	module.exports = (function () {
-		if (typeof WeakMap !== 'function') return false;
-		return (Object.prototype.toString.call(new WeakMap()) === '[object WeakMap]');
-	}());
-
-
-/***/ },
-/* 139 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var createElement = __webpack_require__(140)
+	var createElement = __webpack_require__(95)
 
 	module.exports = createElement
 
 
 /***/ },
-/* 140 */
+/* 95 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var document = __webpack_require__(141)
+	var document = __webpack_require__(96)
 
-	var applyProperties = __webpack_require__(143)
+	var applyProperties = __webpack_require__(98)
 
 	var isVNode = __webpack_require__(78)
 	var isVText = __webpack_require__(83)
 	var isWidget = __webpack_require__(79)
-	var handleThunk = __webpack_require__(145)
+	var handleThunk = __webpack_require__(100)
 
 	module.exports = createElement
 
@@ -4881,12 +3692,12 @@ var Vulture =
 
 
 /***/ },
-/* 141 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {var topLevel = typeof global !== 'undefined' ? global :
 	    typeof window !== 'undefined' ? window : {}
-	var minDoc = __webpack_require__(142);
+	var minDoc = __webpack_require__(97);
 
 	if (typeof document !== 'undefined') {
 	    module.exports = document;
@@ -4903,16 +3714,16 @@ var Vulture =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 142 */
+/* 97 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 143 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(144)
+	var isObject = __webpack_require__(99)
 	var isHook = __webpack_require__(81)
 
 	module.exports = applyProperties
@@ -5012,7 +3823,7 @@ var Vulture =
 
 
 /***/ },
-/* 144 */
+/* 99 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5023,7 +3834,7 @@ var Vulture =
 
 
 /***/ },
-/* 145 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isVNode = __webpack_require__(78)
@@ -5069,28 +3880,28 @@ var Vulture =
 
 
 /***/ },
-/* 146 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var diff = __webpack_require__(147)
+	var diff = __webpack_require__(102)
 
 	module.exports = diff
 
 
 /***/ },
-/* 147 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isArray = __webpack_require__(75)
 
-	var VPatch = __webpack_require__(148)
+	var VPatch = __webpack_require__(103)
 	var isVNode = __webpack_require__(78)
 	var isVText = __webpack_require__(83)
 	var isWidget = __webpack_require__(79)
 	var isThunk = __webpack_require__(80)
-	var handleThunk = __webpack_require__(145)
+	var handleThunk = __webpack_require__(100)
 
-	var diffProps = __webpack_require__(149)
+	var diffProps = __webpack_require__(104)
 
 	module.exports = diff
 
@@ -5511,7 +4322,7 @@ var Vulture =
 
 
 /***/ },
-/* 148 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var version = __webpack_require__(77)
@@ -5539,10 +4350,10 @@ var Vulture =
 
 
 /***/ },
-/* 149 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(144)
+	var isObject = __webpack_require__(99)
 	var isHook = __webpack_require__(81)
 
 	module.exports = diffProps
@@ -5603,24 +4414,24 @@ var Vulture =
 
 
 /***/ },
-/* 150 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var patch = __webpack_require__(151)
+	var patch = __webpack_require__(106)
 
 	module.exports = patch
 
 
 /***/ },
-/* 151 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var document = __webpack_require__(141)
+	var document = __webpack_require__(96)
 	var isArray = __webpack_require__(75)
 
-	var render = __webpack_require__(140)
-	var domIndex = __webpack_require__(152)
-	var patchOp = __webpack_require__(153)
+	var render = __webpack_require__(95)
+	var domIndex = __webpack_require__(107)
+	var patchOp = __webpack_require__(108)
 	module.exports = patch
 
 	function patch(rootNode, patches, renderOptions) {
@@ -5698,7 +4509,7 @@ var Vulture =
 
 
 /***/ },
-/* 152 */
+/* 107 */
 /***/ function(module, exports) {
 
 	// Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
@@ -5789,15 +4600,15 @@ var Vulture =
 
 
 /***/ },
-/* 153 */
+/* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var applyProperties = __webpack_require__(143)
+	var applyProperties = __webpack_require__(98)
 
 	var isWidget = __webpack_require__(79)
-	var VPatch = __webpack_require__(148)
+	var VPatch = __webpack_require__(103)
 
-	var updateWidget = __webpack_require__(154)
+	var updateWidget = __webpack_require__(109)
 
 	module.exports = applyPatch
 
@@ -5946,7 +4757,7 @@ var Vulture =
 
 
 /***/ },
-/* 154 */
+/* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isWidget = __webpack_require__(79)
@@ -5967,362 +4778,20 @@ var Vulture =
 
 
 /***/ },
-/* 155 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*!
-	* vdom-virtualize
-	* Copyright 2014 by Marcel Klehr <mklehr@gmx.net>
-	*
-	* (MIT LICENSE)
-	* Permission is hereby granted, free of charge, to any person obtaining a copy
-	* of this software and associated documentation files (the "Software"), to deal
-	* in the Software without restriction, including without limitation the rights
-	* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	* copies of the Software, and to permit persons to whom the Software is
-	* furnished to do so, subject to the following conditions:
-	*
-	* The above copyright notice and this permission notice shall be included in
-	* all copies or substantial portions of the Software.
-	*
-	* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	* THE SOFTWARE.
-	*/
-	var VNode = __webpack_require__(76)
-	  , VText = __webpack_require__(82)
-	  , VComment = __webpack_require__(156)
-
-	module.exports = createVNode
-
-	function createVNode(domNode, key) {
-	  key = key || null // XXX: Leave out `key` for now... merely used for (re-)ordering
-
-	  if(domNode.nodeType == 1) return createFromElement(domNode, key)
-	  if(domNode.nodeType == 3) return createFromTextNode(domNode, key)
-	  if(domNode.nodeType == 8) return createFromCommentNode(domNode, key)
-	  return
-	}
-
-	createVNode.fromHTML = function(html, key) {
-	  var rootNode = null;
-
-	  try {
-	    // Everything except iOS 7 Safari, IE 8/9, Andriod Browser 4.1/4.3
-	    var parser = new DOMParser();
-	    var doc = parser.parseFromString(html, 'text/html');
-	    rootNode = doc.documentElement;
-	  } catch(e) {
-	    // Old browsers
-	    var ifr = document.createElement('iframe');
-	    ifr.setAttribute('data-content', html);
-	    ifr.src = 'javascript: window.frameElement.getAttribute("data-content");';
-	    document.head.appendChild(ifr);
-	    rootNode = ifr.contentDocument.documentElement;
-	    setTimeout(function() {
-	      ifr.remove(); // Garbage collection
-	    }, 0);
-	  }
-
-	  return createVNode(rootNode, key);
-	};
-
-	function createFromTextNode(tNode) {
-	  return new VText(tNode.nodeValue)
-	}
-
-
-	function createFromCommentNode(cNode) {
-	  return new VComment(cNode.nodeValue)
-	}
-
-
-	function createFromElement(el) {
-	  var tagName = el.tagName
-	  , namespace = el.namespaceURI == 'http://www.w3.org/1999/xhtml'? null : el.namespaceURI
-	  , properties = getElementProperties(el)
-	  , children = []
-
-	  for (var i = 0; i < el.childNodes.length; i++) {
-	    children.push(createVNode(el.childNodes[i]/*, i*/))
-	  }
-
-	  return new VNode(tagName, properties, children, null, namespace)
-	}
-
-
-	function getElementProperties(el) {
-	  var obj = {}
-
-	  props.forEach(function(propName) {
-	    if(!el[propName]) return
-
-	    // Special case: style
-	    // .style is a DOMStyleDeclaration, thus we need to iterate over all
-	    // rules to create a hash of applied css properties.
-	    //
-	    // You can directly set a specific .style[prop] = value so patching with vdom
-	    // is possible.
-	    if("style" == propName) {
-	      var css = {}
-	        , styleProp
-	      if (el.style.length) {
-	        for(var i=0; i<el.style.length; i++) {
-	          styleProp = el.style[i]
-	          css[styleProp] = el.style.getPropertyValue(styleProp) // XXX: add support for "!important" via getPropertyPriority()!
-	        }
-	      } else { // IE8
-	        for (var styleProp in el.style) {
-	          if (el.style[styleProp] && el.style.hasOwnProperty(styleProp)) {
-	            css[styleProp] = el.style[styleProp];
-	          }
-	        }
-	      }
-
-	      obj[propName] = css
-	      return
-	    }
-
-	    // https://msdn.microsoft.com/en-us/library/cc848861%28v=vs.85%29.aspx
-	    // The img element does not support the HREF content attribute.
-	    // In addition, the href property is read-only for the img Document Object Model (DOM) object
-	    if (el.tagName.toLowerCase() === 'img' && propName === 'href') {
-	      return;
-	    }
-
-	    // Special case: dataset
-	    // we can iterate over .dataset with a simple for..in loop.
-	    // The all-time foo with data-* attribs is the dash-snake to camelCase
-	    // conversion.
-	    //
-	    // *This is compatible with h(), but not with every browser, thus this section was removed in favor
-	    // of attributes (specified below)!*
-	    //
-	    // .dataset properties are directly accessible as transparent getters/setters, so
-	    // patching with vdom is possible.
-	    /*if("dataset" == propName) {
-	      var data = {}
-	      for(var p in el.dataset) {
-	        data[p] = el.dataset[p]
-	      }
-	      obj[propName] = data
-	      return
-	    }*/
-
-	    // Special case: attributes
-	    // these are a NamedNodeMap, but we can just convert them to a hash for vdom,
-	    // because of https://github.com/Matt-Esch/virtual-dom/blob/master/vdom/apply-properties.js#L57
-	    if("attributes" == propName){
-	      var atts = Array.prototype.slice.call(el[propName]);
-	      var hash = atts.reduce(function(o,a){
-	        var name = a.name;
-	        if(obj[name]) return o;
-	        o[name] = el.getAttribute(a.name);
-	        return o;
-	      },{});
-	      return obj[propName] = hash;
-	    }
-	    if("tabIndex" == propName && el.tabIndex === -1) return
-
-	    // Special case: contentEditable
-	    // browser use 'inherit' by default on all nodes, but does not allow setting it to ''
-	    // diffing virtualize dom will trigger error
-	    // ref: https://github.com/Matt-Esch/virtual-dom/issues/176
-	    if("contentEditable" == propName && el[propName] === 'inherit') return
-
-	    if('object' === typeof el[propName]) return
-
-	    // default: just copy the property
-	    obj[propName] = el[propName]
-	    return
-	  })
-
-	  return obj
-	}
-
-	/**
-	 * DOMNode property white list
-	 * Taken from https://github.com/Raynos/react/blob/dom-property-config/src/browser/ui/dom/DefaultDOMPropertyConfig.js
-	 */
-	var props =
-
-	module.exports.properties = [
-	 "accept"
-	,"accessKey"
-	,"action"
-	,"alt"
-	,"async"
-	,"autoComplete"
-	,"autoPlay"
-	,"cellPadding"
-	,"cellSpacing"
-	,"checked"
-	,"className"
-	,"colSpan"
-	,"content"
-	,"contentEditable"
-	,"controls"
-	,"crossOrigin"
-	,"data"
-	//,"dataset" removed since attributes handles data-attributes
-	,"defer"
-	,"dir"
-	,"download"
-	,"draggable"
-	,"encType"
-	,"formNoValidate"
-	,"href"
-	,"hrefLang"
-	,"htmlFor"
-	,"httpEquiv"
-	,"icon"
-	,"id"
-	,"label"
-	,"lang"
-	,"list"
-	,"loop"
-	,"max"
-	,"mediaGroup"
-	,"method"
-	,"min"
-	,"multiple"
-	,"muted"
-	,"name"
-	,"noValidate"
-	,"pattern"
-	,"placeholder"
-	,"poster"
-	,"preload"
-	,"radioGroup"
-	,"readOnly"
-	,"rel"
-	,"required"
-	,"rowSpan"
-	,"sandbox"
-	,"scope"
-	,"scrollLeft"
-	,"scrolling"
-	,"scrollTop"
-	,"selected"
-	,"span"
-	,"spellCheck"
-	,"src"
-	,"srcDoc"
-	,"srcSet"
-	,"start"
-	,"step"
-	,"style"
-	,"tabIndex"
-	,"target"
-	,"title"
-	,"type"
-	,"value"
-
-	// Non-standard Properties
-	,"autoCapitalize"
-	,"autoCorrect"
-	,"property"
-
-	, "attributes"
-	]
-
-	var attrs =
-	module.exports.attrs = [
-	 "allowFullScreen"
-	,"allowTransparency"
-	,"charSet"
-	,"cols"
-	,"contextMenu"
-	,"dateTime"
-	,"disabled"
-	,"form"
-	,"frameBorder"
-	,"height"
-	,"hidden"
-	,"maxLength"
-	,"role"
-	,"rows"
-	,"seamless"
-	,"size"
-	,"width"
-	,"wmode"
-
-	// SVG Properties
-	,"cx"
-	,"cy"
-	,"d"
-	,"dx"
-	,"dy"
-	,"fill"
-	,"fx"
-	,"fy"
-	,"gradientTransform"
-	,"gradientUnits"
-	,"offset"
-	,"points"
-	,"r"
-	,"rx"
-	,"ry"
-	,"spreadMethod"
-	,"stopColor"
-	,"stopOpacity"
-	,"stroke"
-	,"strokeLinecap"
-	,"strokeWidth"
-	,"textAnchor"
-	,"transform"
-	,"version"
-	,"viewBox"
-	,"x1"
-	,"x2"
-	,"x"
-	,"y1"
-	,"y2"
-	,"y"
-	]
-
-
-/***/ },
-/* 156 */
-/***/ function(module, exports) {
-
-	module.exports = VirtualComment
-
-	function VirtualComment(text) {
-	  this.text = String(text)
-	}
-
-	VirtualComment.prototype.type = 'Widget'
-
-	VirtualComment.prototype.init = function() {
-	  return document.createComment(this.text)
-	}
-
-	VirtualComment.prototype.update = function(previous, domNode) {
-	  if(this.text === previous.text) return
-	  domNode.nodeValue = this.text
-	}
-
-
-/***/ },
-/* 157 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Vulture = {}
 
-	Vulture.map = __webpack_require__(158)
-	Vulture.forEach = __webpack_require__(159)
-	Vulture.reduce = __webpack_require__(160)
+	Vulture.map = __webpack_require__(111)
+	Vulture.forEach = __webpack_require__(112)
+	Vulture.reduce = __webpack_require__(113)
 
 	module.exports = Vulture
 
 
 /***/ },
-/* 158 */
+/* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isObject = __webpack_require__(7)
@@ -6367,10 +4836,10 @@ var Vulture =
 
 
 /***/ },
-/* 159 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var map = __webpack_require__(158)
+	var map = __webpack_require__(111)
 
 	/**
 	 * Iterates over all nodes in a virtual DOM tree. Uses the same implementation
@@ -6391,10 +4860,10 @@ var Vulture =
 
 
 /***/ },
-/* 160 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var forEach = __webpack_require__(159)
+	var forEach = __webpack_require__(112)
 
 	/**
 	 * Turns a virtual DOM tree into a single value. Maintains the standard `reduce`
