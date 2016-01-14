@@ -27,7 +27,7 @@ module.exports = {
     new optimize.DedupePlugin(),
     minify ? new optimize.UglifyJsPlugin({
       mangle: true,
-      comments: /Vulture/
+      comments: /\(c\) 2016 Caleb Meredith/
     }) : null
   ])
 }
