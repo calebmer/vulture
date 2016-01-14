@@ -29,7 +29,7 @@
   ],
   "scripts": {
     "test": "$(npm bin)/mocha test/*.test.js",
-    "lint": "$(npm bin)/standard",
+    "lint": "$(npm bin)/standard *.js lib/**/*.js test/**/*.js",
     "build": "npm run build-max && npm run build-min",
     "build-max": "WEBPACK_MINIFY=false $(npm bin)/webpack",
     "build-min": "WEBPACK_MINIFY=true $(npm bin)/webpack",
