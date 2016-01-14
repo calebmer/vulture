@@ -1,12 +1,13 @@
 var webpack = require('webpack')
 var compact = require('lodash/array/compact')
+var pkg = require('./package.json')
 
 var optimize = webpack.optimize
 
 var minify = process.env.MINIFY === 'true'
 
 var banner = [
-  'Vulture',
+  'Vulture ' + pkg.version,
   '(c) 2016 Caleb Meredith',
   'Released under the MIT License.'
 ].join('\n')
