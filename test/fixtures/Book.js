@@ -1,6 +1,6 @@
 var h = require('virtual-dom/h')
 
-function Book(data) {
+function Book (data) {
   var volume = data.volume
   var title = data.title
   return (

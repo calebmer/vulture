@@ -1,7 +1,7 @@
 var h = require('virtual-dom/h')
 var Book = require('./Book')
 
-function Series(data) {
+function Series (data) {
   var title = data.title
   var about = data.about
   var books = data.books

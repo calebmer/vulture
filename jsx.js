@@ -1,6 +1,6 @@
 var v = require('./lib/v')
 
-function jsx(jsxObject) {
+function jsx (jsxObject) {
   return v(
     jsxObject.elementName,
     jsxObject.attributes,

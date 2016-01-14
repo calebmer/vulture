@@ -24,8 +24,7 @@ module.exports = {
   plugins: compact([
     new webpack.BannerPlugin(banner),
     new optimize.DedupePlugin(),
-    minify ?
-    new optimize.UglifyJsPlugin({
+    minify ? new optimize.UglifyJsPlugin({
       mangle: true,
       comments: /Vulture/
     }) : null
