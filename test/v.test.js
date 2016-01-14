@@ -30,6 +30,18 @@ describe('v()', function () {
     )
   })
 
+  it('will work even if children is not an array', function () {
+    assert.deepEqual(
+      v('div', 'child'),
+      v('div', {}, ['child'])
+    )
+
+    assert.deepEqual(
+      v('div', v(v('p', 'hello'))),
+      v('div', {}, [v('div', {}, [v('p', {}, ['hello'])])])
+    )
+  })
+
   it('will work with nothing', function () {
     assert.deepEqual(
       v(),
