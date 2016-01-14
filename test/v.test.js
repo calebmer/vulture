@@ -9,8 +9,6 @@ var Series = require('./fixtures/series')
 var sampleData = Series.sampleData
 
 describe('v()', function () {
-  it('works with jsx')
-
   it('will default to div when there is no tag name', function () {
     assert.deepEqual(
       v({}, []),

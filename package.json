@@ -38,10 +38,8 @@
     "postversion": "git push origin master --tags && npm publish"
   },
   "dependencies": {
-    "es6-weak-map": "^2.0.1",
     "lodash": "^3.10.1",
     "vdom-to-html": "^2.2.0",
-    "vdom-virtualize": "^1.0.1",
     "virtual-dom": "^2.1.1"
   },
   "devDependencies": {
