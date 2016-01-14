@@ -4,7 +4,7 @@
 
 `vulture` is a front-end framework optimized for progressive enhancement and accessibility. Everything rendered with `vulture` *must* be accessible for everyone, even those who have chosen to disable JavaScript.
 
-To accomplish this goal, `vulture` uses the concept of isomorphism, shared code on both the client and server. Therefore (while not required) it is highly recommended that your web app server (sometimes lovingly called the front-end-back-end) use node.js.
+To accomplish this goal, `vulture` uses the concept of isomorphism, shared code on both the client and server. However, in order to be isomorphic `vulture` uses a virtual DOM (specifically the [`virtual-dom`](http://npmjs.com/virtual-dom) package). This inevitably means writing HTML in JavaScript.
 
 ```js
 var v = require('vulture')
@@ -13,9 +13,16 @@ var render = require('vulture/dom')
 render(v('p', 'Hello, world!'))
 ```
 
-And for those who really want to go deep on tooling, JSX is an enhancement:
+”Isn‘t that the opposite of progressive enhancement?” some may claim, but keep an open mind. The answer is not at all. There are different techniques for achieving a progressively enhanced web app, `vulture` just takes a more modern one.
+
+Writing HTML in JavaScript gives a couple of acute benefits. First, the DOM can be constructed *everywhere*. Whether it be on the server, client, service worker, or refrigerator. Second, it‘s super easy to script in your templates. After all, it‘s just JavaScript! Third, we can run checks on your DOM for accessibility, semanticity, and more really simply.
+
+For those who want a more HTML like syntax, JSX is an enhancement. For more information see [here](#jsx). The above example would instead be this:
 
 ```jsx
+var v = require('vulture')
+var render = require('vulture/dom')
+
 render(<p>Hello, world!</p>)
 ```
 
@@ -24,6 +31,9 @@ render(<p>Hello, world!</p>)
 - Blazing fast. The virtual DOM is super efficient as it allows for micro diffing and patching of the rendered DOM.
 - Isomorphic. `vulture` can easily go through an initial server render, and state is handled in such a way that it may be easily communicated across page visits. Whether it be the client, server, service worker, or even refrigerator, `vulture` can run.
 - Traversable virtual DOM. Other virtual DOM implementations like ReactJS are not easily traversable, `vulture`‘s virtual DOM output *is*. This allows for a wide range of tooling which just wasn’t possible when using ReactJS.
+
+## Library or Framework?
+In API, `vulture` is really more of a library then a framework. However, with  the entire `vulture` ecosystem, you can easily replace your front-end framework with vulture. The ecosystem and mindset used when developing with `vulture` is what makes it a framework.
 
 ## Components
 At it’s core, `vulture` is just an advanced virtual DOM rendering library. Therefore it’s components are completely user defined.
@@ -75,8 +85,54 @@ Because our components are *just* functions, we can call them as such.
 
 This also means that our rendered virtual DOM trees are not lazy as they are in ReactJS. Allowing you to traverse the full virtual DOM and apply transformations as you will.
 
-## Library or Framework?
-In API, `vulture` is really more of a library then a framework. However, with  the entire `vulture` ecosystem, you can easily replace your front-end framework with vulture. The ecosystem and mindset used when developing with `vulture` is what makes it a framework.
+## JSX
+To use with JSX use the [`babel-plugin-transform-jsx`](https://www.npmjs.com/package/babel-plugin-transform-jsx) package.
+
+In your `.babelrc` file just remember to add:
+
+```json
+{
+  "plugins": [
+    ["transform-jsx", { "module": "vulture/jsx" }]
+  ]
+}
+```
+
+That’s it! Unlike ReactJS, you don‘t need to `require` or `import` the `vulture` module in every file. If you are using JSX the plugin will know and add an appropriate `import` statement. Just remember to transform ES6 modules.
 
 ## API
-TODO.
+### v(tagName? = 'div', properties? = {}, children?)
+This will create a new virtual DOM node using the parameters. You can generally throw anything at this function and it will work. For example:
+
+```js
+v('div', [v('p', 'Hello, world!')])
+```
+
+Would actually be like calling:
+
+```js
+v('div', {}, [v('p', {}, ['Hello, world!'])])
+```
+
+If you are using JSX you should never really need this function.
+
+For more information on what is returned, see the [`virtual-dom`](https://www.npmjs.com/package/virtual-dom) documentation.
+
+- `tagName`: The tag name string to be used. The standard stuff: `div`, `h1`, `p`, `input`, and on.
+- `properties`: An object of key/value properties. Can be considered as properties on the DOM node, or DOM attributes.
+- `children`: An array (or single value) of any type. Represents the children of the node.
+
+### renderToString
+TODO
+
+### renderToDOM
+TODO
+
+### map
+TODO
+
+### forEach
+TODO
+
+### reduce
+TODO
