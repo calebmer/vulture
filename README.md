@@ -13,6 +13,12 @@ var render = require('vulture/dom')
 render(v('p', 'Hello, world!'))
 ```
 
+And for those who really want to go deep on tooling, JSX is an enhancement:
+
+```jsx
+render(<p>Hello, world!</p>)
+```
+
 ## Strengths
 - Blazing fast. The virtual DOM is super efficient as it allows for micro diffing and patching of the rendered DOM.
 - Isomorphic. `vulture` can easily go through an initial server render, and state is handled in such a way that it may be easily communicated across page visits.
