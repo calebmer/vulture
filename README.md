@@ -85,6 +85,9 @@ Because our components are *just* functions, we can call them as such.
 
 This also means that our rendered virtual DOM trees are not lazy as they are in ReactJS. Allowing you to traverse the full virtual DOM and apply transformations as you will.
 
+### State
+TODO
+
 ## JSX
 To use with JSX, first install [this](https://www.npmjs.com/package/babel-plugin-transform-jsx) JSX babel plugin by running:
 
