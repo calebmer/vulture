@@ -128,6 +128,9 @@ TODO
 ### renderToDOM
 TODO
 
+### applyState
+TODO
+
 ### map
 TODO
 
