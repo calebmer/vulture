@@ -1,8 +1,10 @@
 var assert = require('assert')
 var assign = require('lodash/object/assign')
 var jsdom = require('jsdom').jsdom
+var h = require('virtual-dom/h')
 var renderToDOM = require('../lib/renderToDOM')
 var renderToString = require('../lib/renderToString')
+var EventHook = require('../lib/EventHook')
 var Series = require('./fixtures/Series')
 
 var sampleData = Series.sampleData
@@ -48,5 +50,38 @@ describe('renderToDOM()', function () {
     renderToDOM(Series(assign({}, sampleData, { title: 'Untitled Series' })), container, document)
     assert.equal(container.outerHTML, '<div id="container"><div class="series"><h1 class="series--title">Untitled Series</h1><p class="series--about">An English-language fictional trilogy by J. R. R. Tolkien (1892-1973).</p><div class="series--books"><p>The books in the series are:</p><ul><li><div class="book"><span class="book--volume">Vol. 1:</span> <span class="book--title">The Fellowship of the Ring</span></div></li><li><div class="book"><span class="book--volume">Vol. 2:</span> <span class="book--title">The Two Towers</span></div></li><li><div class="book"><span class="book--volume">Vol. 3:</span> <span class="book--title">The Return of the King</span></div></li></ul></div></div></div>')
     assert.equal(container.firstElementChild, lastNode)
+  })
+
+  it('doesn’t break event hooks', () => {
+    var clicks = 0
+
+    function render(text) {
+      return h('div',
+        { onClick: new EventHook('click', () => clicks += 1) },
+        [text]
+      )
+    }
+
+    var window = jsdom('<div id="container"></div>').defaultView
+    var document = window.document
+    var Event = window.Event
+    var container = document.getElementById('container')
+    var click = () => container.firstElementChild.dispatchEvent(new Event('click'))
+
+    renderToDOM(render('hello'), container, document)
+    assert.equal(clicks, 0)
+    click()
+    assert.equal(clicks, 1)
+    click()
+    click()
+    click()
+    assert.equal(clicks, 4)
+    renderToDOM(render('goodbye'), container, document)
+    click()
+    assert.equal(clicks, 5)
+    click()
+    click()
+    click()
+    assert.equal(clicks, 8)
   })
 })

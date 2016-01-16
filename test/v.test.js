@@ -1,6 +1,8 @@
 var assert = require('assert')
 var identity = require('lodash/utility/identity')
+var jsdom = require('jsdom').jsdom
 var h = require('virtual-dom/h')
+var createElement = require('virtual-dom/create-element')
 var VNode = require('virtual-dom/vnode/vnode')
 var EventHook = require('../lib/EventHook')
 var v = require('../lib/v')
@@ -68,6 +70,28 @@ describe('v()', function () {
     assert.equal(vnode.properties.onMouseOver.event, 'mouseover')
     assert(vnode.properties.onWhatever instanceof EventHook)
     assert.equal(vnode.properties.onWhatever.event, 'whatever')
+  })
+
+  it('attaches event hooks correctly', () => {
+    var clicks = 0
+
+    var vnode = v('div', {
+      onClick: () => clicks += 1
+    })
+
+    var window = jsdom('<div id="container"></div>').defaultView
+    var document = window.document
+    var Event = window.Event
+    var container = document.getElementById('container')
+    var node = createElement(vnode, { document: document })
+    container.appendChild(node)
+    assert.equal(clicks, 0)
+    node.dispatchEvent(new Event('click'))
+    assert.equal(clicks, 1)
+    node.dispatchEvent(new Event('click'))
+    node.dispatchEvent(new Event('click'))
+    node.dispatchEvent(new Event('click'))
+    assert.equal(clicks, 4)
   })
 
   it('aliases common attribute names', () => {
