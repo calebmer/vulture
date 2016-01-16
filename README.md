@@ -86,9 +86,13 @@ Because our components are *just* functions, we can call them as such.
 This also means that our rendered virtual DOM trees are not lazy as they are in ReactJS. Allowing you to traverse the full virtual DOM and apply transformations as you will.
 
 ## JSX
-To use with JSX use the [`babel-plugin-transform-jsx`](https://www.npmjs.com/package/babel-plugin-transform-jsx) package.
+To use with JSX, first install [this](https://www.npmjs.com/package/babel-plugin-transform-jsx) JSX babel plugin by running:
 
-In your `.babelrc` file just remember to add:
+```bash
+$ npm install --save babel-plugin-transform-jsx
+```
+
+And then add the following to your `.babelrc` file:
 
 ```json
 {
