@@ -36,7 +36,13 @@ var sampleData = {
   ]
 }
 
-var mapOrder = ['div', 'h1', 'p', 'div', 'p', 'ul', 'li', 'div', 'span', 'span', 'li', 'div', 'span', 'span', 'li', 'div', 'span', 'span']
+var mapOrder = [
+  'div', 'h1', 'p', 'div',
+  'p', 'ul', 'li', 'div',
+  'span', 'span', 'li', 'div',
+  'span', 'span', 'li', 'div',
+  'span', 'span'
+]
 
 Series.sampleData = sampleData
 Series.mapOrder = mapOrder
