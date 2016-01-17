@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.3.1
+ * Vulture 3.4.0
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -55,10 +55,11 @@ var Vulture =
 	Vulture.v = __webpack_require__(1)
 	Vulture.renderToDOM = __webpack_require__(157)
 	Vulture.render = __webpack_require__(157)
-	Vulture.applyState = __webpack_require__(174)
-	Vulture.map = __webpack_require__(178)
-	Vulture.forEach = __webpack_require__(179)
-	Vulture.reduce = __webpack_require__(180)
+	Vulture.decorate = __webpack_require__(174)
+	Vulture.applyState = __webpack_require__(180)
+	Vulture.map = __webpack_require__(184)
+	Vulture.forEach = __webpack_require__(185)
+	Vulture.reduce = __webpack_require__(186)
 
 	module.exports = Vulture
 
@@ -6853,12 +6854,233 @@ var Vulture =
 /* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var toArray = __webpack_require__(175)
+
+	/**
+	 * Takes all of the arguments and returns a thunk which will decorate the
+	 * thunk’s value with all of the initial arguments.
+	 *
+	 * This is a convenience function for building components.
+	 *
+	 * @param {...function} All of the decorators to be applied.
+	 * @returns {function} A thunk which when called will decorate the argument.
+	 */
+
+	function decorate () {
+	  var decorators = toArray(arguments).reverse()
+	  return function actuallyDecorate (value) {
+	    return decorators.reduce(function applyDecorator (currentValue, decorator) {
+	      return decorator(currentValue)
+	    }, value)
+	  }
+	}
+
+	module.exports = decorate
+
+
+/***/ },
+/* 175 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _Symbol = __webpack_require__(78),
+	    copyArray = __webpack_require__(60),
+	    getTag = __webpack_require__(63),
+	    isArrayLike = __webpack_require__(51),
+	    isString = __webpack_require__(2),
+	    iteratorToArray = __webpack_require__(176),
+	    mapToArray = __webpack_require__(72),
+	    setToArray = __webpack_require__(76),
+	    stringToArray = __webpack_require__(177),
+	    values = __webpack_require__(178);
+
+	/** `Object#toString` result references. */
+	var mapTag = '[object Map]',
+	    setTag = '[object Set]';
+
+	/** Built-in value references. */
+	var iteratorSymbol = typeof (iteratorSymbol = _Symbol && _Symbol.iterator) == 'symbol' ? iteratorSymbol : undefined;
+
+	/**
+	 * Converts `value` to an array.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to convert.
+	 * @returns {Array} Returns the converted array.
+	 * @example
+	 *
+	 * _.toArray({ 'a': 1, 'b': 2 });
+	 * // => [1, 2]
+	 *
+	 * _.toArray('abc');
+	 * // => ['a', 'b', 'c']
+	 *
+	 * _.toArray(1);
+	 * // => []
+	 *
+	 * _.toArray(null);
+	 * // => []
+	 */
+	function toArray(value) {
+	  if (!value) {
+	    return [];
+	  }
+	  if (isArrayLike(value)) {
+	    return isString(value) ? stringToArray(value) : copyArray(value);
+	  }
+	  if (iteratorSymbol && value[iteratorSymbol]) {
+	    return iteratorToArray(value[iteratorSymbol]());
+	  }
+	  var tag = getTag(value),
+	      func = tag == mapTag ? mapToArray : (tag == setTag ? setToArray : values);
+
+	  return func(value);
+	}
+
+	module.exports = toArray;
+
+
+/***/ },
+/* 176 */
+/***/ function(module, exports) {
+
+	/**
+	 * Converts `iterator` to an array.
+	 *
+	 * @private
+	 * @param {Object} iterator The iterator to convert.
+	 * @returns {Array} Returns the converted array.
+	 */
+	function iteratorToArray(iterator) {
+	  var data,
+	      result = [];
+
+	  while (!(data = iterator.next()).done) {
+	    result.push(data.value);
+	  }
+	  return result;
+	}
+
+	module.exports = iteratorToArray;
+
+
+/***/ },
+/* 177 */
+/***/ function(module, exports) {
+
+	/** Used to compose unicode character classes. */
+	var rsAstralRange = '\\ud800-\\udfff',
+	    rsComboRange = '\\u0300-\\u036f\\ufe20-\\ufe23',
+	    rsVarRange = '\\ufe0e\\ufe0f';
+
+	/** Used to compose unicode capture groups. */
+	var rsAstral = '[' + rsAstralRange + ']',
+	    rsCombo = '[' + rsComboRange + ']',
+	    rsModifier = '(?:\\ud83c[\\udffb-\\udfff])',
+	    rsNonAstral = '[^' + rsAstralRange + ']',
+	    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+	    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+	    rsZWJ = '\\u200d';
+
+	/** Used to compose unicode regexes. */
+	var reOptMod = rsModifier + '?',
+	    rsOptVar = '[' + rsVarRange + ']?',
+	    rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
+	    rsSeq = rsOptVar + reOptMod + rsOptJoin,
+	    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
+
+	/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
+	var reComplexSymbol = RegExp(rsSymbol + rsSeq, 'g');
+
+	/**
+	 * Converts `string` to an array.
+	 *
+	 * @private
+	 * @param {string} string The string to convert.
+	 * @returns {Array} Returns the converted array.
+	 */
+	function stringToArray(string) {
+	  return string.match(reComplexSymbol);
+	}
+
+	module.exports = stringToArray;
+
+
+/***/ },
+/* 178 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var baseValues = __webpack_require__(179),
+	    keys = __webpack_require__(44);
+
+	/**
+	 * Creates an array of the own enumerable property values of `object`.
+	 *
+	 * **Note:** Non-object values are coerced to objects.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Object
+	 * @param {Object} object The object to query.
+	 * @returns {Array} Returns the array of property values.
+	 * @example
+	 *
+	 * function Foo() {
+	 *   this.a = 1;
+	 *   this.b = 2;
+	 * }
+	 *
+	 * Foo.prototype.c = 3;
+	 *
+	 * _.values(new Foo);
+	 * // => [1, 2] (iteration order is not guaranteed)
+	 *
+	 * _.values('hi');
+	 * // => ['h', 'i']
+	 */
+	function values(object) {
+	  return object ? baseValues(object, keys(object)) : [];
+	}
+
+	module.exports = values;
+
+
+/***/ },
+/* 179 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var arrayMap = __webpack_require__(103);
+
+	/**
+	 * The base implementation of `_.values` and `_.valuesIn` which creates an
+	 * array of `object` property values corresponding to the property names
+	 * of `props`.
+	 *
+	 * @private
+	 * @param {Object} object The object to query.
+	 * @param {Array} props The property names to get values for.
+	 * @returns {Object} Returns the array of property values.
+	 */
+	function baseValues(object, props) {
+	  return arrayMap(props, function(key) {
+	    return object[key];
+	  });
+	}
+
+	module.exports = baseValues;
+
+
+/***/ },
+/* 180 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict'
 
 	var noop = __webpack_require__(129)
 	var isFunction = __webpack_require__(26)
 	var clone = __webpack_require__(7)
-	var assign = __webpack_require__(175)
+	var assign = __webpack_require__(181)
 	var diffNodes = __webpack_require__(165)
 	var patchDOM = __webpack_require__(169)
 
@@ -7004,11 +7226,11 @@ var Vulture =
 
 
 /***/ },
-/* 175 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var copyObject = __webpack_require__(42),
-	    createAssigner = __webpack_require__(176),
+	    createAssigner = __webpack_require__(182),
 	    keys = __webpack_require__(44);
 
 	/**
@@ -7049,10 +7271,10 @@ var Vulture =
 
 
 /***/ },
-/* 176 */
+/* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isIterateeCall = __webpack_require__(177),
+	var isIterateeCall = __webpack_require__(183),
 	    rest = __webpack_require__(136);
 
 	/**
@@ -7089,7 +7311,7 @@ var Vulture =
 
 
 /***/ },
-/* 177 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var eq = __webpack_require__(14),
@@ -7123,7 +7345,7 @@ var Vulture =
 
 
 /***/ },
-/* 178 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
@@ -7170,12 +7392,12 @@ var Vulture =
 
 
 /***/ },
-/* 179 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var map = __webpack_require__(178)
+	var map = __webpack_require__(184)
 
 	/**
 	 * Iterates over all nodes in a virtual DOM tree. Uses the same implementation
@@ -7196,12 +7418,12 @@ var Vulture =
 
 
 /***/ },
-/* 180 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var forEach = __webpack_require__(179)
+	var forEach = __webpack_require__(185)
 
 	/**
 	 * Turns a virtual DOM tree into a single value. Maintains the standard `reduce`
