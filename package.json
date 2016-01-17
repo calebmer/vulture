@@ -24,6 +24,7 @@
     "dom.js",
     "string.js",
     "extras.js",
+    "component.js",
     "jsx.js",
     "lib"
   ],
