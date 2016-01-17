@@ -1,5 +1,5 @@
 var assert = require('assert')
-var assign = require('lodash/object/assign')
+var assign = require('lodash/assign')
 var jsdom = require('jsdom').jsdom
 var h = require('virtual-dom/h')
 var renderToDOM = require('../lib/renderToDOM')

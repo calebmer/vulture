@@ -1,5 +1,5 @@
 var assert = require('assert')
-var clone = require('lodash/lang/clone')
+var clone = require('lodash/clone')
 var h = require('virtual-dom/h')
 var map = require('../lib/map')
 var Series = require('./fixtures/Series')

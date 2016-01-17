@@ -1,6 +1,6 @@
 var assert = require('assert')
-var noop = require('lodash/utility/noop')
-var clone = require('lodash/lang/clone')
+var noop = require('lodash/noop')
+var clone = require('lodash/clone')
 var reduce = require('../lib/reduce')
 var Series = require('./fixtures/Series')
 

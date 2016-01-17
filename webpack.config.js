@@ -1,5 +1,5 @@
 var webpack = require('webpack')
-var compact = require('lodash/array/compact')
+var compact = require('lodash/compact')
 var pkg = require('./package.json')
 
 var optimize = webpack.optimize

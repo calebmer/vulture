@@ -1,7 +1,7 @@
 var assert = require('assert')
-var noop = require('lodash/utility/noop')
-var clone = require('lodash/lang/clone')
-var cloneDeep = require('lodash/lang/cloneDeep')
+var noop = require('lodash/noop')
+var clone = require('lodash/clone')
+var cloneDeep = require('lodash/cloneDeep')
 var forEach = require('../lib/forEach')
 var Series = require('./fixtures/Series')
 

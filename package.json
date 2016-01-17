@@ -38,7 +38,7 @@
     "postversion": "git push origin master --tags && npm publish"
   },
   "dependencies": {
-    "lodash": "^3.10.1",
+    "lodash": "^4.0.0",
     "vdom-thunk": "^3.0.0",
     "vdom-to-html": "^2.2.0",
     "virtual-dom": "^2.1.1"
