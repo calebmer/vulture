@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.4.0
+ * Vulture 3.5.0
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
