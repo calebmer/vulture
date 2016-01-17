@@ -1,4 +1,5 @@
 var assert = require('assert')
+var noop = require('lodash/utility/noop')
 var identity = require('lodash/utility/identity')
 var jsdom = require('jsdom').jsdom
 var h = require('virtual-dom/h')
@@ -102,5 +103,10 @@ describe('v()', function () {
 
     assert.equal(vnode.properties.className, 'a')
     assert.equal(vnode.properties.htmlFor, 'b')
+  })
+
+  it('will set the id to key when key does not exist', () => {
+    assert.deepEqual(v('DIV', { id: 'a' }, []), new VNode('DIV', { id: 'a', key: noop() }, [], 'a'))
+    assert.deepEqual(v('DIV', { id: 'a', key: 'b' }, []), new VNode('DIV', { id: 'a', key: noop() }, [], 'b'))
   })
 })
