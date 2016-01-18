@@ -11,6 +11,7 @@ describe('decorate()', () => {
       return value * value
     }
 
+    assert.equal(decorate(addOne, addOne, square)(1), addOne(addOne(square(1))))
     assert.equal(decorate(addOne, addOne, square)(1), 3)
     assert.equal(decorate(square, addOne, addOne)(1), 9)
     assert.equal(decorate(addOne, square, addOne)(1), 5)
