@@ -1,6 +1,6 @@
 {
   "name": "vulture",
-  "version": "3.7.2",
+  "version": "3.8.0",
   "description": "A light front-end framework based around the fast virtual DOM.",
   "author": "Caleb Meredith <calebmeredith8@gmail.com>",
   "license": "MIT",
