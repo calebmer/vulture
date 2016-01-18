@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.7.1
+ * Vulture 3.7.2
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -49,6 +49,8 @@ var Vulture =
 /******/ ([
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict'
 
 	var Vulture = __webpack_require__(1)
 
@@ -7516,6 +7518,8 @@ var Vulture =
 /***/ },
 /* 188 */
 /***/ function(module, exports, __webpack_require__) {
+
+	'use strict'
 
 	var toArray = __webpack_require__(176)
 
