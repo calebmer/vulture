@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.6.2
+ * Vulture 3.6.3
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -7176,8 +7176,9 @@ var Vulture =
 	            assign(state, newState)
 
 	            if (!rendering) {
-	              // If we are not rendering, we need to trigger a rerender.
-	              hook.update(thunk)
+	              // If we are not rendering, we need to trigger a rerender of the
+	              // most recent thunk.
+	              hook.update(getLatest(thunk))
 	            } else {
 	              // If we are rendering, we should not rerender, but we should
 	              // update the cloned state object.
@@ -7200,6 +7201,12 @@ var Vulture =
 	          rendering = false
 
 	          addHook(node, hook)
+
+	          // Add a reference of this thunk to the previous one. Used for old
+	          // `setState`s which need a reference to the most recent thunk.
+	          if (previous) {
+	            previous.next = thunk
+	          }
 
 	          return node
 	        }
@@ -7225,6 +7232,21 @@ var Vulture =
 	// TODO: Find a not so hacky way to do this.
 	function addHook (node, hook) {
 	  node.properties.__stateHook__ = hook
+	}
+
+	/**
+	 * Recursively traverses an object with `next` properties to get the latest
+	 * rendition. If the `next` property is our object we immediately return it.
+	 * This is used for old `setState`s.
+	 *
+	 * @private
+	 * @see applyState
+	 * @param {object} An object with a `next` property.
+	 * @returns {object} The latest object as designated by the `next` property.
+	 */
+
+	function getLatest (object) {
+	  return object.next && object.next !== object ? getLatest(object.next) : object
 	}
 
 	/**
