@@ -9,4 +9,7 @@ Vulture.map = require('./lib/map')
 Vulture.forEach = require('./lib/forEach')
 Vulture.reduce = require('./lib/reduce')
 
+Vulture.decorate = require('./lib/deprecated/decorate')
+Vulture.lazy = require('./lib/deprecated/lazy')
+
 module.exports = Vulture

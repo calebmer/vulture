@@ -1,5 +1,5 @@
 var assert = require('assert')
-var decorate = require('../lib/decorate')
+var decorate = require('../lib/deprecated/decorate')
 
 describe('decorate()', () => {
   it('will apply decorators in the correct order', () => {
