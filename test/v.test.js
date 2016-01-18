@@ -109,4 +109,8 @@ describe('v()', function () {
     assert.deepEqual(v('DIV', { id: 'a' }, []), new VNode('DIV', { id: 'a', key: noop() }, [], 'a'))
     assert.deepEqual(v('DIV', { id: 'a', key: 'b' }, []), new VNode('DIV', { id: 'a', key: noop() }, [], 'b'))
   })
+
+  it('will discard falsey children', () => {
+    assert.deepEqual(v('div', {}, [false, v(), null, true && v()]), v('div', {}, [v(), v()]))
+  })
 })
