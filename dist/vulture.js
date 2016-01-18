@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.6.3
+ * Vulture 3.7.0
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -55,7 +55,7 @@ var Vulture =
 	Vulture.v = __webpack_require__(1)
 	Vulture.renderToDOM = __webpack_require__(158)
 	Vulture.render = __webpack_require__(158)
-	Vulture.decorate = __webpack_require__(175)
+	Vulture.createComponent = __webpack_require__(175)
 	Vulture.applyState = __webpack_require__(181)
 	Vulture.map = __webpack_require__(185)
 	Vulture.forEach = __webpack_require__(186)
@@ -6894,25 +6894,26 @@ var Vulture =
 	var toArray = __webpack_require__(176)
 
 	/**
-	 * Takes all of the arguments and returns a thunk which will decorate the
-	 * thunk’s value with all of the initial arguments.
+	 * The last argument is the component, all prior arguments are decorators for
+	 * that component. We decorate the component and then return it.
 	 *
-	 * This is a convenience function for building components.
-	 *
-	 * @param {...function} All of the decorators to be applied.
-	 * @returns {function} A thunk which when called will decorate the argument.
+	 * @param {...function} All of the decorators to be appled.
+	 * @param {function} The component to be decorated.
+	 * @returns {function} The decorated component.
 	 */
 
-	function decorate () {
-	  var decorators = toArray(arguments).reverse()
-	  return function actuallyDecorate (value) {
-	    return decorators.reduce(function applyDecorator (currentValue, decorator) {
-	      return decorator(currentValue)
-	    }, value)
-	  }
+	function createComponent () {
+	  var decorators = toArray(arguments)
+	  var component = decorators.pop()
+
+	  var decoratedComponent = decorators.reverse().reduce(function applyDecorator (currentComponent, decorator) {
+	    return decorator(currentComponent)
+	  }, component)
+
+	  return decoratedComponent
 	}
 
-	module.exports = decorate
+	module.exports = createComponent
 
 
 /***/ },
