@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.6.0
+ * Vulture 3.6.1
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -7189,7 +7189,10 @@ var Vulture =
 	          // may be triggered. Therefore we clone the state object.
 	          self.state = clone(state)
 	          self.setState = setState
-	          self.resetState = () => setState(initialState)
+
+	          self.resetState = function resetState () {
+	            setState(initialState)
+	          }
 
 	          // Hooray for synchronous things.
 	          rendering = true
