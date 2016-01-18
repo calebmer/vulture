@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.5.0
+ * Vulture 3.5.1
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -112,7 +112,7 @@ var Vulture =
 	    children = [children]
 	  }
 
-	  return h(tagName, transformVDOMProperties(properties), children)
+	  return h(tagName, transformVDOMProperties(properties), children.filter(child => child))
 	}
 
 	module.exports = v
