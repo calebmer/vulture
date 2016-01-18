@@ -1,6 +1,7 @@
 var assert = require('assert')
 var isObject = require('lodash/isObject')
 var isFunction = require('lodash/isFunction')
+var compact = require('lodash/compact')
 var wrap = require('lodash/wrap')
 var jsdom = require('jsdom').jsdom
 var h = require('virtual-dom/h')
@@ -329,7 +330,7 @@ describe('applyState()', () => {
     nodeA.dispatchEvent(new Event('click'))
     nodeA.dispatchEvent(new Event('click'))
     assert.equal(container.innerHTML, '<div id="node-a">goodbye<br>Clicks: 6<br><div id="node-b">Clicks: 5</div></div>')
-    var patches = diffNodes(firstVNode, secondVNode)
+    var patches = diffNodes(secondVNode, thirdVNode)
     patchDOM(nodeA, patches)
     nodeA.dispatchEvent(new Event('click'))
     nodeB.dispatchEvent(new Event('click'))
@@ -337,6 +338,54 @@ describe('applyState()', () => {
     nodeB.dispatchEvent(new Event('click'))
     nodeA.dispatchEvent(new Event('click'))
     nodeB.dispatchEvent(new Event('click'))
-    assert.equal(container.innerHTML, '<div id="node-a">goodbye<br>Clicks: 8<br><div id="node-b">Clicks: 9</div></div>')
+    assert.equal(container.innerHTML, '<div id="node-a">hello<br>Clicks: 8<br><div id="node-b">Clicks: 9</div></div>')
+  })
+
+  it('a new state will be created if moved', () => {
+    var stateRender = applyState({ clicks: 0 }, function render(id) {
+      return h('div',
+        { id: id, onClick: new EventHook('click', () => this.setState({ clicks: this.state.clicks + 1 })) },
+        [`Clicks: ${this.state.clicks}`]
+      )
+    })
+
+    function renderContainer(boolean) {
+      return h('div', {}, compact([
+        'Hello, world!',
+        boolean && stateRender('node-a'),
+        h('div', {}, compact([
+          !boolean && stateRender('node-b')
+        ]))
+      ]))
+    }
+
+    var window = jsdom('<div id="container"></div>').defaultView
+    var document = window.document
+    var Event = window.Event
+    var container = document.getElementById('container')
+    var firstVNode = renderContainer(true)
+    var secondVNode = renderContainer(false)
+    var thirdVNode = renderContainer(true)
+    var containerNode = createElement(firstVNode, { document: document })
+    container.appendChild(containerNode)
+    assert.equal(container.innerHTML, '<div>Hello, world!<div id="node-a">Clicks: 0</div><div></div></div>')
+    var nodeA = document.getElementById('node-a')
+    nodeA.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    assert.equal(container.innerHTML, '<div>Hello, world!<div id="node-a">Clicks: 2</div><div></div></div>')
+    var patches = diffNodes(firstVNode, secondVNode)
+    patchDOM(containerNode, patches)
+    assert.equal(container.innerHTML, '<div>Hello, world!<div><div id="node-b">Clicks: 0</div></div></div>')
+    var nodeB = document.getElementById('node-b')
+    nodeB.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    assert.equal(container.innerHTML, '<div>Hello, world!<div><div id="node-b">Clicks: 2</div></div></div>')
+    var patches = diffNodes(secondVNode, thirdVNode)
+    patchDOM(containerNode, patches)
+    assert.equal(container.innerHTML, '<div>Hello, world!<div id="node-a">Clicks: 0</div><div></div></div>')
+    nodeA = document.getElementById('node-a')
+    nodeA.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    assert.equal(container.innerHTML, '<div>Hello, world!<div id="node-a">Clicks: 2</div><div></div></div>')
   })
 })
