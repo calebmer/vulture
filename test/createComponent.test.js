@@ -23,4 +23,14 @@ describe('createComponent()', () => {
     assert.equal(createComponent(square, addOne, addOne, identity)(1), 9)
     assert.equal(createComponent(addOne, square, addOne, identity)(1), 5)
   })
+
+  it('will set the component name to the last function’s name', () => {
+    function MyComponent(value) {
+      return value
+    }
+
+    const component = createComponent(identity, identity, MyComponent)
+
+    assert.equal(component.name, 'MyComponent')
+  })
 })
