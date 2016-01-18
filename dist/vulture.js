@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.6.1
+ * Vulture 3.6.2
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -7261,9 +7261,9 @@ var Vulture =
 	 * Removes the update function.
 	 */
 
-	StateHook.prototype.unhook = function unhook () {
-	  this.update = noop
-	}
+	// StateHook.prototype.unhook = function unhook () {
+	//   this.update = noop
+	// }
 
 
 /***/ },
