@@ -1,3 +1,5 @@
+'use strict'
+
 var Vulture = {}
 
 Vulture.map = require('./lib/map')

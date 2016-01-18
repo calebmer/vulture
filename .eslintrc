@@ -23,3 +23,6 @@ ecmaFeatures:
   templateStrings: false
   unicodeCodePointEscapes: false
   globalReturn: false
+
+rules:
+  strict: [2, global]

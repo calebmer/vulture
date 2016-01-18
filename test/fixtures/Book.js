@@ -1,3 +1,5 @@
+'use strict'
+
 var h = require('virtual-dom/h')
 
 function Book (data) {

@@ -1,3 +1,5 @@
+'use strict'
+
 var Vulture = require('./lib/renderToDOM')
 
 Vulture.renderToDOM = require('./lib/renderToDOM')

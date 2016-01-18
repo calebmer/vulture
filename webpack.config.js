@@ -1,3 +1,5 @@
+'use strict'
+
 var webpack = require('webpack')
 var compact = require('lodash/compact')
 var pkg = require('./package.json')

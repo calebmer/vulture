@@ -1,3 +1,5 @@
+'use strict'
+
 var Vulture = require('./lib/createComponent')
 
 Vulture.createComponent = require('./lib/createComponent')

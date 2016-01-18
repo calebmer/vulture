@@ -1,3 +1,5 @@
+'use strict'
+
 var Vulture = require('./lib/renderToString')
 
 Vulture.renderToString = require('./lib/renderToString')

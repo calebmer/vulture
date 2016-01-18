@@ -1,3 +1,5 @@
+'use strict'
+
 var v = require('./lib/v')
 
 function jsx (jsxObject) {
