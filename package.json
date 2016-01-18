@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "test": "$(npm bin)/mocha test/*.test.js",
-    "lint": "$(npm bin)/eslint *.js lib/**/*.js test/**/*.js",
+    "lint": "$(npm bin)/eslint *.js lib/*.js lib/**/*.js test/*.js test/**/*.js",
     "build": "npm run build-max && npm run build-min",
     "build-max": "MINIFY=false $(npm bin)/webpack",
     "build-min": "MINIFY=true $(npm bin)/webpack",

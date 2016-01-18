@@ -1,13 +1,13 @@
 var assert = require('assert')
 var decorate = require('../lib/deprecated/decorate')
 
-describe('decorate()', () => {
-  it('will apply decorators in the correct order', () => {
-    function addOne(value) {
+describe('decorate()', function () {
+  it('will apply decorators in the correct order', function () {
+    function addOne (value) {
       return value + 1
     }
 
-    function square(value) {
+    function square (value) {
       return value * value
     }
 

@@ -5,8 +5,8 @@ var Series = require('./fixtures/series')
 
 var sampleData = Series.sampleData
 
-describe('makeLazy()', () => {
-  it('will return the exact same vdom if nothing changed', () => {
+describe('makeLazy()', function () {
+  it('will return the exact same vdom if nothing changed', function () {
     var SeriesLazy = makeLazy(Series)
     var firstThunk = SeriesLazy(sampleData)
     var secondThunk = SeriesLazy(sampleData)

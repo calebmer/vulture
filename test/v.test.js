@@ -2,14 +2,10 @@ var assert = require('assert')
 var noop = require('lodash/noop')
 var identity = require('lodash/identity')
 var jsdom = require('jsdom').jsdom
-var h = require('virtual-dom/h')
 var createElement = require('virtual-dom/create-element')
 var VNode = require('virtual-dom/vnode/vnode')
 var EventHook = require('../lib/EventHook')
 var v = require('../lib/v')
-var Series = require('./fixtures/series')
-
-var sampleData = Series.sampleData
 
 describe('v()', function () {
   it('will default to div when there is no tag name', function () {
@@ -73,11 +69,13 @@ describe('v()', function () {
     assert.equal(vnode.properties.onWhatever.event, 'whatever')
   })
 
-  it('attaches event hooks correctly', () => {
+  it('attaches event hooks correctly', function () {
     var clicks = 0
 
     var vnode = v('div', {
-      onClick: () => clicks += 1
+      onClick: function () {
+        clicks += 1
+      }
     })
 
     var window = jsdom('<div id="container"></div>').defaultView
@@ -95,7 +93,7 @@ describe('v()', function () {
     assert.equal(clicks, 4)
   })
 
-  it('aliases common attribute names', () => {
+  it('aliases common attribute names', function () {
     var vnode = v('div', {
       class: 'a',
       for: 'b'
@@ -105,12 +103,12 @@ describe('v()', function () {
     assert.equal(vnode.properties.htmlFor, 'b')
   })
 
-  it('will set the id to key when key does not exist', () => {
+  it('will set the id to key when key does not exist', function () {
     assert.deepEqual(v('DIV', { id: 'a' }, []), new VNode('DIV', { id: 'a', key: noop() }, [], 'a'))
     assert.deepEqual(v('DIV', { id: 'a', key: 'b' }, []), new VNode('DIV', { id: 'a', key: noop() }, [], 'b'))
   })
 
-  it('will discard falsey children', () => {
+  it('will discard falsey children', function () {
     assert.deepEqual(v('div', {}, [false, v(), null, true && v()]), v('div', {}, [v(), v()]))
   })
 })

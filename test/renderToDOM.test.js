@@ -20,7 +20,7 @@ describe('renderToDOM()', function () {
     assert.equal(container.outerHTML, '<div id="container"><div class="series"><h1 class="series--title">Lord of the Rings</h1><p class="series--about">An English-language fictional trilogy by J. R. R. Tolkien (1892-1973).</p><div class="series--books"><p>The books in the series are:</p><ul><li><div class="book"><span class="book--volume">Vol. 1:</span> <span class="book--title">The Fellowship of the Ring</span></div></li><li><div class="book"><span class="book--volume">Vol. 2:</span> <span class="book--title">The Two Towers</span></div></li><li><div class="book"><span class="book--volume">Vol. 3:</span> <span class="book--title">The Return of the King</span></div></li></ul></div></div></div>')
   })
 
-  it('will store virtual trees for diffing later', () => {
+  it('will store virtual trees for diffing later', function () {
     var window = jsdom('<div id="container"></div>').defaultView
     var document = window.document
     var container = document.getElementById('container')
@@ -35,8 +35,8 @@ describe('renderToDOM()', function () {
     assert.equal(container.outerHTML, '<div id="container"><div class="series"><h1 class="series--title">Untitled Series</h1><p class="series--about">An English-language fictional trilogy by J. R. R. Tolkien (1892-1973).</p><div class="series--books"><p>The books in the series are:</p><ul><li><div class="book"><span class="book--volume">Vol. 1:</span> <span class="book--title">The Fellowship of the Ring</span></div></li><li><div class="book"><span class="book--volume">Vol. 2:</span> <span class="book--title">The Two Towers</span></div></li><li><div class="book"><span class="book--volume">Vol. 3:</span> <span class="book--title">The Return of the King</span></div></li></ul></div></div></div>')
   })
 
-  it('will replace a previously rendered dom', () => {
-    var window = jsdom(`<div id="container">${renderToString(Series(assign({}, sampleData, { title: 'Untitled Series' })))}</div>`).defaultView
+  it('will replace a previously rendered dom', function () {
+    var window = jsdom('<div id="container">' + renderToString(Series(assign({}, sampleData, { title: 'Untitled Series' }))) + '</div>').defaultView
     var document = window.document
     var container = document.getElementById('container')
     var lastNode = container.firstElementChild
@@ -52,21 +52,25 @@ describe('renderToDOM()', function () {
     assert.equal(container.firstElementChild, lastNode)
   })
 
-  it('doesn’t break event hooks', () => {
+  it('doesn’t break event hooks', function () {
     var clicks = 0
 
-    function render(text) {
-      return h('div',
-        { onClick: new EventHook('click', () => clicks += 1) },
-        [text]
-      )
+    function render (text) {
+      return h('div', {
+        onClick: new EventHook('click', function () {
+          clicks += 1
+        })
+      }, [text])
     }
 
     var window = jsdom('<div id="container"></div>').defaultView
     var document = window.document
     var Event = window.Event
     var container = document.getElementById('container')
-    var click = () => container.firstElementChild.dispatchEvent(new Event('click'))
+
+    function click () {
+      container.firstElementChild.dispatchEvent(new Event('click'))
+    }
 
     renderToDOM(render('hello'), container, document)
     assert.equal(clicks, 0)

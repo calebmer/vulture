@@ -2,17 +2,17 @@ var assert = require('assert')
 var identity = require('lodash/identity')
 var createComponent = require('../lib/createComponent')
 
-describe('createComponent()', () => {
-  it('will apply decorators in the correct order', () => {
-    function addOne(component) {
-      return function actuallyAddOne(value) {
+describe('createComponent()', function () {
+  it('will apply decorators in the correct order', function () {
+    function addOne (component) {
+      return function (value) {
         value = component(value)
         return value + 1
       }
     }
 
-    function square(component) {
-      return function actuallySquare(value) {
+    function square (component) {
+      return function (value) {
         value = component(value)
         return value * value
       }
@@ -24,12 +24,12 @@ describe('createComponent()', () => {
     assert.equal(createComponent(addOne, square, addOne, identity)(1), 5)
   })
 
-  it('will set the component name to the last function’s name', () => {
-    function MyComponent(value) {
+  it('will set the component name to the last function’s name', function () {
+    function MyComponent (value) {
       return value
     }
 
-    const component = createComponent(identity, identity, MyComponent)
+    var component = createComponent(identity, identity, MyComponent)
 
     assert.equal(component.name, 'MyComponent')
   })
