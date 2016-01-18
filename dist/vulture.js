@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.7.0
+ * Vulture 3.7.1
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -60,6 +60,9 @@ var Vulture =
 	Vulture.map = __webpack_require__(185)
 	Vulture.forEach = __webpack_require__(186)
 	Vulture.reduce = __webpack_require__(187)
+
+	Vulture.decorate = __webpack_require__(188)
+	Vulture.lazy = __webpack_require__(189)
 
 	module.exports = Vulture
 
@@ -7508,6 +7511,152 @@ var Vulture =
 	}
 
 	module.exports = reduce
+
+
+/***/ },
+/* 188 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var toArray = __webpack_require__(176)
+
+	/**
+	 * Takes all of the arguments and returns a thunk which will decorate the
+	 * thunk’s value with all of the initial arguments.
+	 *
+	 * This is a convenience function for building components.
+	 *
+	 * @param {...function} All of the decorators to be applied.
+	 * @returns {function} A thunk which when called will decorate the argument.
+	 */
+
+	function decorate () {
+	  var decorators = toArray(arguments).reverse()
+	  return function actuallyDecorate (value) {
+	    return decorators.reduce(function applyDecorator (currentValue, decorator) {
+	      return decorator(currentValue)
+	    }, value)
+	  }
+	}
+
+	module.exports = decorate
+
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict'
+
+	module.exports = __webpack_require__(190)
+
+
+/***/ },
+/* 190 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Partial = __webpack_require__(191);
+
+	module.exports = Partial();
+
+
+/***/ },
+/* 191 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var shallowEq = __webpack_require__(192);
+	var Thunk = __webpack_require__(193);
+
+	module.exports = createPartial;
+
+	function createPartial(eq) {
+	    return function partial(fn) {
+	        var args = copyOver(arguments, 1);
+	        var firstArg = args[0];
+	        var key;
+
+	        var eqArgs = eq || shallowEq;
+
+	        if (typeof firstArg === 'object' && firstArg !== null) {
+	            if ('key' in firstArg) {
+	                key = firstArg.key;
+	            } else if ('id' in firstArg) {
+	                key = firstArg.id;
+	            }
+	        }
+
+	        return new Thunk(fn, args, key, eqArgs);
+	    };
+	}
+
+	function copyOver(list, offset) {
+	    var newList = [];
+	    for (var i = list.length - 1; i >= offset; i--) {
+	        newList[i - offset] = list[i];
+	    }
+	    return newList;
+	}
+
+
+/***/ },
+/* 192 */
+/***/ function(module, exports) {
+
+	module.exports = shallowEq;
+
+	function shallowEq(currentArgs, previousArgs) {
+	    if (currentArgs.length === 0 && previousArgs.length === 0) {
+	        return true;
+	    }
+
+	    if (currentArgs.length !== previousArgs.length) {
+	        return false;
+	    }
+
+	    var len = currentArgs.length;
+
+	    for (var i = 0; i < len; i++) {
+	        if (currentArgs[i] !== previousArgs[i]) {
+	            return false;
+	        }
+	    }
+
+	    return true;
+	}
+
+
+/***/ },
+/* 193 */
+/***/ function(module, exports) {
+
+	function Thunk(fn, args, key, eqArgs) {
+	    this.fn = fn;
+	    this.args = args;
+	    this.key = key;
+	    this.eqArgs = eqArgs;
+	}
+
+	Thunk.prototype.type = 'Thunk';
+	Thunk.prototype.render = render;
+	module.exports = Thunk;
+
+	function shouldUpdate(current, previous) {
+	    if (!current || !previous || current.fn !== previous.fn) {
+	        return true;
+	    }
+
+	    var cargs = current.args;
+	    var pargs = previous.args;
+
+	    return !current.eqArgs(cargs, pargs);
+	}
+
+	function render(previous) {
+	    if (shouldUpdate(this, previous)) {
+	        return this.fn.apply(null, this.args);
+	    } else {
+	        return previous.vnode;
+	    }
+	}
 
 
 /***/ }
