@@ -5,7 +5,7 @@ function Book (data) {
   var title = data.title
   return (
     h('.book', [
-      h('span.book--volume', `Vol. ${volume}:`),
+      h('span.book--volume', 'Vol. ' + volume + ':'),
       ' ',
       h('span.book--title', title)
     ])

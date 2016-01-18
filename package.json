@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "test": "$(npm bin)/mocha test/*.test.js",
-    "lint": "$(npm bin)/standard *.js lib/**/*.js test/**/*.js",
+    "lint": "$(npm bin)/eslint *.js lib/**/*.js test/**/*.js",
     "build": "npm run build-max && npm run build-min",
     "build-max": "MINIFY=false $(npm bin)/webpack",
     "build-min": "MINIFY=true $(npm bin)/webpack",
@@ -45,6 +45,7 @@
     "virtual-dom": "^2.1.1"
   },
   "devDependencies": {
+    "eslint": "^1.10.3",
     "jsdom": "^7.2.2",
     "mocha": "^2.3.4",
     "standard": "^5.4.1",
