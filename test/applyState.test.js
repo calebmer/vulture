@@ -380,12 +380,50 @@ describe('applyState()', () => {
     nodeB.dispatchEvent(new Event('click'))
     nodeB.dispatchEvent(new Event('click'))
     assert.equal(container.innerHTML, '<div>Hello, world!<div><div id="node-b">Clicks: 2</div></div></div>')
-    var patches = diffNodes(secondVNode, thirdVNode)
+    patches = diffNodes(secondVNode, thirdVNode)
     patchDOM(containerNode, patches)
     assert.equal(container.innerHTML, '<div>Hello, world!<div id="node-a">Clicks: 0</div><div></div></div>')
     nodeA = document.getElementById('node-a')
     nodeA.dispatchEvent(new Event('click'))
     nodeA.dispatchEvent(new Event('click'))
     assert.equal(container.innerHTML, '<div>Hello, world!<div id="node-a">Clicks: 2</div><div></div></div>')
+  })
+
+  it('old `setState`s will always work', () => {
+    var oldSetState
+
+    var stateRender = applyState({ counter: 0 }, function render(text) {
+      oldSetState = oldSetState || this.setState
+      return h('div', {}, [text + ', Counter: ' + this.state.counter])
+    })
+
+    var window = jsdom('<div id="container"></div>').defaultView
+    var document = window.document
+    var Event = window.Event
+    var container = document.getElementById('container')
+    var firstVNode = stateRender('hello')
+    var secondVNode = stateRender('goodbye')
+    var thirdVNode = stateRender('maybe')
+    var node = createElement(firstVNode, { document: document })
+    container.appendChild(node)
+    assert.equal(container.innerHTML, '<div>hello, Counter: 0</div>')
+    oldSetState({ counter: 1 })
+    assert.equal(container.innerHTML, '<div>hello, Counter: 1</div>')
+    oldSetState({ counter: 2 })
+    assert.equal(container.innerHTML, '<div>hello, Counter: 2</div>')
+    var patches = diffNodes(firstVNode, secondVNode)
+    patchDOM(node, patches)
+    assert.equal(container.innerHTML, '<div>goodbye, Counter: 2</div>')
+    oldSetState({ counter: 3 })
+    assert.equal(container.innerHTML, '<div>goodbye, Counter: 3</div>')
+    oldSetState({ counter: 4 })
+    assert.equal(container.innerHTML, '<div>goodbye, Counter: 4</div>')
+    var patches = diffNodes(secondVNode, thirdVNode)
+    patchDOM(node, patches)
+    assert.equal(container.innerHTML, '<div>maybe, Counter: 4</div>')
+    oldSetState({ counter: -50 })
+    assert.equal(container.innerHTML, '<div>maybe, Counter: -50</div>')
+    oldSetState({ counter: 200 })
+    assert.equal(container.innerHTML, '<div>maybe, Counter: 200</div>')
   })
 })
