@@ -256,4 +256,87 @@ describe('applyState()', () => {
     nodeA.dispatchEvent(new Event('click'))
     assert.equal(container.innerHTML, '<div>hello<div id="node-a">Clicks: 4</div><div id="node-b">Clicks: 3</div></div>')
   })
+
+  it('will work with nested states', () => {
+    var stateRenderB = applyState({ clicks: 0 }, function render() {
+      return h('div',
+        { id: 'node-b', onClick: new EventHook('click', () => this.setState({ clicks: this.state.clicks + 1 })) },
+        [`Clicks: ${this.state.clicks}`]
+      )
+    })
+
+    var stateRenderA = applyState({ clicks: 0 }, function render() {
+      return h('div',
+        { id: 'node-a', onClick: new EventHook('click', () => this.setState({ clicks: this.state.clicks + 1 })) },
+        [`Clicks: ${this.state.clicks}`, h('br'), stateRenderB()]
+      )
+    })
+
+    var window = jsdom('<div id="container"></div>').defaultView
+    var document = window.document
+    var Event = window.Event
+    var container = document.getElementById('container')
+    var nodeA = createElement(stateRenderA(), { document: document })
+    container.appendChild(nodeA)
+    var nodeB = document.getElementById('node-b')
+    assert.equal(container.innerHTML, '<div id="node-a">Clicks: 0<br><div id="node-b">Clicks: 0</div></div>')
+    nodeB.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    assert.equal(container.innerHTML, '<div id="node-a">Clicks: 2<br><div id="node-b">Clicks: 3</div></div>')
+  })
+
+  it('will work with nested states across diffs', () => {
+    var stateRenderB = applyState({ clicks: 0 }, function render() {
+      return h('div',
+        { id: 'node-b', onClick: new EventHook('click', () => this.setState({ clicks: this.state.clicks + 1 })) },
+        [`Clicks: ${this.state.clicks}`]
+      )
+    })
+
+    var stateRenderA = applyState({ clicks: 0 }, function render(message) {
+      return h('div',
+        { id: 'node-a', onClick: new EventHook('click', () => this.setState({ clicks: this.state.clicks + 1 })) },
+        [message, h('br'), `Clicks: ${this.state.clicks}`, h('br'), stateRenderB()]
+      )
+    })
+
+    var window = jsdom('<div id="container"></div>').defaultView
+    var document = window.document
+    var Event = window.Event
+    var container = document.getElementById('container')
+    var firstVNode = stateRenderA('hello')
+    var secondVNode = stateRenderA('goodbye')
+    var thirdVNode = stateRenderA('hello')
+    var nodeA = createElement(firstVNode, { document: document })
+    container.appendChild(nodeA)
+    var nodeB = document.getElementById('node-b')
+    assert.equal(container.innerHTML, '<div id="node-a">hello<br>Clicks: 0<br><div id="node-b">Clicks: 0</div></div>')
+    nodeB.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    assert.equal(container.innerHTML, '<div id="node-a">hello<br>Clicks: 2<br><div id="node-b">Clicks: 3</div></div>')
+    var patches = diffNodes(firstVNode, secondVNode)
+    patchDOM(nodeA, patches)
+    nodeB.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    assert.equal(container.innerHTML, '<div id="node-a">goodbye<br>Clicks: 6<br><div id="node-b">Clicks: 5</div></div>')
+    var patches = diffNodes(firstVNode, secondVNode)
+    patchDOM(nodeA, patches)
+    nodeA.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    nodeA.dispatchEvent(new Event('click'))
+    nodeB.dispatchEvent(new Event('click'))
+    assert.equal(container.innerHTML, '<div id="node-a">goodbye<br>Clicks: 8<br><div id="node-b">Clicks: 9</div></div>')
+  })
 })
