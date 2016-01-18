@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.8.0
+ * Vulture 3.8.1
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -60,15 +60,15 @@ var Vulture =
 	Vulture.render = __webpack_require__(158)
 
 	Vulture.makeLazy = __webpack_require__(175)
-	Vulture.applyState = __webpack_require__(177)
-	Vulture.createComponent = __webpack_require__(181)
+	Vulture.applyState = __webpack_require__(176)
+	Vulture.createComponent = __webpack_require__(180)
 
-	Vulture.map = __webpack_require__(187)
-	Vulture.forEach = __webpack_require__(188)
-	Vulture.reduce = __webpack_require__(189)
+	Vulture.map = __webpack_require__(186)
+	Vulture.forEach = __webpack_require__(187)
+	Vulture.reduce = __webpack_require__(188)
 
-	Vulture.decorate = __webpack_require__(190)
-	Vulture.lazy = __webpack_require__(191)
+	Vulture.decorate = __webpack_require__(189)
+	Vulture.lazy = __webpack_require__(190)
 
 	module.exports = Vulture
 
@@ -6898,9 +6898,9 @@ var Vulture =
 
 /***/ },
 /* 175 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var isEqual = __webpack_require__(176)
+	'use strict'
 
 	// TODO: doc
 	function makeLazy (component) {
@@ -6919,7 +6919,7 @@ var Vulture =
 
 	        if (vnode.type === 'Thunk') {
 	          throw new Error(
-	            `${component.name || 'anonymous function'} cannot be lazified because it returns a Thunk`
+	            (component.name || 'anonymous function') + ' cannot be lazified because it returns a Thunk'
 	          )
 	        }
 
@@ -6932,7 +6932,7 @@ var Vulture =
 	module.exports = makeLazy
 
 	// TODO: doc
-	function compareArgs(argsA, argsB) {
+	function compareArgs (argsA, argsB) {
 	  if (!argsA || !argsB) {
 	    return false
 	  }
@@ -6951,7 +6951,7 @@ var Vulture =
 	}
 
 	// TODO: doc
-	function shallowEqual(valueA, valueB) {
+	function shallowEqual (valueA, valueB) {
 	  if (valueA === valueB) {
 	    return true
 	  }
@@ -6977,52 +6977,12 @@ var Vulture =
 /* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseIsEqual = __webpack_require__(92);
-
-	/**
-	 * Performs a deep comparison between two values to determine if they are
-	 * equivalent.
-	 *
-	 * **Note:** This method supports comparing arrays, array buffers, booleans,
-	 * date objects, error objects, maps, numbers, `Object` objects, regexes,
-	 * sets, strings, symbols, and typed arrays. `Object` objects are compared
-	 * by their own, not inherited, enumerable properties. Functions and DOM
-	 * nodes are **not** supported.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to compare.
-	 * @param {*} other The other value to compare.
-	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
-	 * @example
-	 *
-	 * var object = { 'user': 'fred' };
-	 * var other = { 'user': 'fred' };
-	 *
-	 * _.isEqual(object, other);
-	 * // => true
-	 *
-	 * object === other;
-	 * // => false
-	 */
-	function isEqual(value, other) {
-	  return baseIsEqual(value, other);
-	}
-
-	module.exports = isEqual;
-
-
-/***/ },
-/* 177 */
-/***/ function(module, exports, __webpack_require__) {
-
 	'use strict'
 
 	var noop = __webpack_require__(130)
 	var isFunction = __webpack_require__(26)
 	var clone = __webpack_require__(7)
-	var assign = __webpack_require__(178)
+	var assign = __webpack_require__(177)
 	var diffNodes = __webpack_require__(166)
 	var patchDOM = __webpack_require__(170)
 
@@ -7194,11 +7154,11 @@ var Vulture =
 
 
 /***/ },
-/* 178 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var copyObject = __webpack_require__(42),
-	    createAssigner = __webpack_require__(179),
+	    createAssigner = __webpack_require__(178),
 	    keys = __webpack_require__(44);
 
 	/**
@@ -7239,10 +7199,10 @@ var Vulture =
 
 
 /***/ },
-/* 179 */
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isIterateeCall = __webpack_require__(180),
+	var isIterateeCall = __webpack_require__(179),
 	    rest = __webpack_require__(137);
 
 	/**
@@ -7279,7 +7239,7 @@ var Vulture =
 
 
 /***/ },
-/* 180 */
+/* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var eq = __webpack_require__(14),
@@ -7313,10 +7273,12 @@ var Vulture =
 
 
 /***/ },
-/* 181 */
+/* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var toArray = __webpack_require__(182)
+	'use strict'
+
+	var toArray = __webpack_require__(181)
 
 	/**
 	 * The last argument is the component, all prior arguments are decorators for
@@ -7356,7 +7318,7 @@ var Vulture =
 
 
 /***/ },
-/* 182 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _Symbol = __webpack_require__(78),
@@ -7364,11 +7326,11 @@ var Vulture =
 	    getTag = __webpack_require__(63),
 	    isArrayLike = __webpack_require__(51),
 	    isString = __webpack_require__(2),
-	    iteratorToArray = __webpack_require__(183),
+	    iteratorToArray = __webpack_require__(182),
 	    mapToArray = __webpack_require__(72),
 	    setToArray = __webpack_require__(76),
-	    stringToArray = __webpack_require__(184),
-	    values = __webpack_require__(185);
+	    stringToArray = __webpack_require__(183),
+	    values = __webpack_require__(184);
 
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -7419,7 +7381,7 @@ var Vulture =
 
 
 /***/ },
-/* 183 */
+/* 182 */
 /***/ function(module, exports) {
 
 	/**
@@ -7443,7 +7405,7 @@ var Vulture =
 
 
 /***/ },
-/* 184 */
+/* 183 */
 /***/ function(module, exports) {
 
 	/** Used to compose unicode character classes. */
@@ -7485,10 +7447,10 @@ var Vulture =
 
 
 /***/ },
-/* 185 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseValues = __webpack_require__(186),
+	var baseValues = __webpack_require__(185),
 	    keys = __webpack_require__(44);
 
 	/**
@@ -7524,7 +7486,7 @@ var Vulture =
 
 
 /***/ },
-/* 186 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var arrayMap = __webpack_require__(103);
@@ -7549,7 +7511,7 @@ var Vulture =
 
 
 /***/ },
-/* 187 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
@@ -7596,12 +7558,12 @@ var Vulture =
 
 
 /***/ },
-/* 188 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var map = __webpack_require__(187)
+	var map = __webpack_require__(186)
 
 	/**
 	 * Iterates over all nodes in a virtual DOM tree. Uses the same implementation
@@ -7622,12 +7584,12 @@ var Vulture =
 
 
 /***/ },
-/* 189 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var forEach = __webpack_require__(188)
+	var forEach = __webpack_require__(187)
 
 	/**
 	 * Turns a virtual DOM tree into a single value. Maintains the standard `reduce`
@@ -7651,12 +7613,12 @@ var Vulture =
 
 
 /***/ },
-/* 190 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var toArray = __webpack_require__(182)
+	var toArray = __webpack_require__(181)
 
 	/**
 	 * Takes all of the arguments and returns a thunk which will decorate the
@@ -7681,29 +7643,29 @@ var Vulture =
 
 
 /***/ },
-/* 191 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	module.exports = __webpack_require__(192)
+	module.exports = __webpack_require__(191)
+
+
+/***/ },
+/* 191 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Partial = __webpack_require__(192);
+
+	module.exports = Partial();
 
 
 /***/ },
 /* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Partial = __webpack_require__(193);
-
-	module.exports = Partial();
-
-
-/***/ },
-/* 193 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var shallowEq = __webpack_require__(194);
-	var Thunk = __webpack_require__(195);
+	var shallowEq = __webpack_require__(193);
+	var Thunk = __webpack_require__(194);
 
 	module.exports = createPartial;
 
@@ -7737,7 +7699,7 @@ var Vulture =
 
 
 /***/ },
-/* 194 */
+/* 193 */
 /***/ function(module, exports) {
 
 	module.exports = shallowEq;
@@ -7764,7 +7726,7 @@ var Vulture =
 
 
 /***/ },
-/* 195 */
+/* 194 */
 /***/ function(module, exports) {
 
 	function Thunk(fn, args, key, eqArgs) {
