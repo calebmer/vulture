@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.8.1
+ * Vulture 3.8.2
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -6902,28 +6902,36 @@ var Vulture =
 
 	'use strict'
 
-	// TODO: doc
+	/**
+	 * Turns a function which returns a virtual dom into a lazy thunk. If the
+	 * function has a `this` context, the function will not be lazified.
+	 *
+	 * @param {function} The function to be lazified.
+	 * @returns {function} The lazified function.
+	 */
+
 	function makeLazy (component) {
 	  return function lazifiedComponent () {
 	    var self = this
 	    var args = arguments
+
+	    // If there is `this` there is also a possibility for side effects.
+	    // Therefore we should just return the virtual tree.
+	    if (self) {
+	      return component.apply(self, args)
+	    }
+
 	    return {
 	      type: 'Thunk',
 	      args: args,
 	      render: function render (previous) {
+	        // If the arguments are shallowly equal to one another, and the
+	        // previous render wasn‘t a thunk then return the saved virtual node.
 	        if (previous && compareArgs(args, previous.args)) {
 	          return previous.vnode
 	        }
 
-	        var vnode = component.apply(self, args)
-
-	        if (vnode.type === 'Thunk') {
-	          throw new Error(
-	            (component.name || 'anonymous function') + ' cannot be lazified because it returns a Thunk'
-	          )
-	        }
-
-	        return vnode
+	        return component.apply(self, args)
 	      }
 	    }
 	  }
@@ -6931,7 +6939,17 @@ var Vulture =
 
 	module.exports = makeLazy
 
-	// TODO: doc
+	/**
+	 * Takes two sets of arguments and compares their values. This is used to see
+	 * if the lazy function should update or not.
+	 *
+	 * @private
+	 * @see makeLazy
+	 * @param {Array} The first set of arguments.
+	 * @param {Array} The second set of arguments.
+	 * @returns {boolean} Whether or not the two argument sets are not equal.
+	 */
+
 	function compareArgs (argsA, argsB) {
 	  if (!argsA || !argsB) {
 	    return false
@@ -6950,7 +6968,17 @@ var Vulture =
 	  return true
 	}
 
-	// TODO: doc
+	/**
+	 * Compares two values to each other an sees if the shallowly equal one
+	 * another.
+	 *
+	 * @private
+	 * @see compareArgs
+	 * @param {any} The first value.
+	 * @param {any} The second value.
+	 * @returns {boolean} Whether or not they are shallowly equal.
+	 */
+
 	function shallowEqual (valueA, valueB) {
 	  if (valueA === valueB) {
 	    return true
@@ -7293,9 +7321,14 @@ var Vulture =
 	  var decorators = toArray(arguments)
 	  var component = decorators.pop()
 
-	  var decoratedComponent = decorators.reverse().reduce(function applyDecorator (currentComponent, decorator) {
-	    return decorator(currentComponent)
-	  }, component)
+	  // Apply all decorators.
+	  var decoratedComponent = (
+	    decorators
+	    .reverse()
+	    .reduce(function applyDecorator (currentComponent, decorator) {
+	      return decorator(currentComponent)
+	    }, component)
+	  )
 
 	  var finalComponent = function () {
 	    return decoratedComponent.apply(this, arguments)
