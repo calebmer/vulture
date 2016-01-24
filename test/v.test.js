@@ -113,6 +113,6 @@ describe('v()', function () {
   })
 
   it('will not discard numbers', function () {
-    assert.deepEqual(v('div', {}, [false, null, v(), 0, 1, 2, 3, null]), v('div', {}, [v(), 0, 1, 2, 3]))
+    assert.deepEqual(v('div', {}, [false, null, v(), 0, 1, 2, 3, null]), new VNode('div', {}, [v(), { text: '0' }, { text: '1' }, { text: '2' }, { text: '3' }]))
   })
 })
