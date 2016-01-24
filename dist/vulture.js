@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.8.4
+ * Vulture 3.8.5
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -56,19 +56,19 @@ var Vulture =
 
 	Vulture.v = __webpack_require__(1)
 
-	Vulture.renderToDOM = __webpack_require__(106)
-	Vulture.render = __webpack_require__(106)
+	Vulture.renderToDOM = __webpack_require__(109)
+	Vulture.render = __webpack_require__(109)
 
-	Vulture.makeLazy = __webpack_require__(124)
-	Vulture.applyState = __webpack_require__(125)
-	Vulture.createComponent = __webpack_require__(155)
+	Vulture.makeLazy = __webpack_require__(127)
+	Vulture.applyState = __webpack_require__(128)
+	Vulture.createComponent = __webpack_require__(158)
 
-	Vulture.map = __webpack_require__(161)
-	Vulture.forEach = __webpack_require__(162)
-	Vulture.reduce = __webpack_require__(163)
+	Vulture.map = __webpack_require__(164)
+	Vulture.forEach = __webpack_require__(165)
+	Vulture.reduce = __webpack_require__(166)
 
-	Vulture.decorate = __webpack_require__(164)
-	Vulture.lazy = __webpack_require__(165)
+	Vulture.decorate = __webpack_require__(167)
+	Vulture.lazy = __webpack_require__(168)
 
 	module.exports = Vulture
 
@@ -85,13 +85,14 @@ var Vulture =
 	var startsWith = __webpack_require__(7)
 	var mapKeys = __webpack_require__(16)
 	var mapValues = __webpack_require__(96)
-	var VNode = __webpack_require__(97)
-	var VText = __webpack_require__(103)
-	var isVNode = __webpack_require__(99)
-	var isVText = __webpack_require__(104)
-	var isWidget = __webpack_require__(100)
-	var isVThunk = __webpack_require__(101)
-	var EventHook = __webpack_require__(105)
+	var flatten = __webpack_require__(97)
+	var VNode = __webpack_require__(100)
+	var VText = __webpack_require__(106)
+	var isVNode = __webpack_require__(102)
+	var isVText = __webpack_require__(107)
+	var isWidget = __webpack_require__(103)
+	var isVThunk = __webpack_require__(104)
+	var EventHook = __webpack_require__(108)
 
 	/**
 	 * Vulture hyperscript implementation for use with JSX. It accepts children as
@@ -138,7 +139,7 @@ var Vulture =
 	    properties.namespace = undefined
 	  }
 
-	  children = children.filter(validChild).map(transformChildToNode)
+	  children = flatten(children).filter(validChild).map(transformChildToNode)
 
 	  return new VNode(tagName, properties, children, key, namespace)
 	}
@@ -3495,11 +3496,109 @@ var Vulture =
 /* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var version = __webpack_require__(98)
-	var isVNode = __webpack_require__(99)
-	var isWidget = __webpack_require__(100)
-	var isThunk = __webpack_require__(101)
-	var isVHook = __webpack_require__(102)
+	var baseFlatten = __webpack_require__(98);
+
+	/**
+	 * Flattens `array` a single level.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Array
+	 * @param {Array} array The array to flatten.
+	 * @returns {Array} Returns the new flattened array.
+	 * @example
+	 *
+	 * _.flatten([1, [2, 3, [4]]]);
+	 * // => [1, 2, 3, [4]]
+	 */
+	function flatten(array) {
+	  var length = array ? array.length : 0;
+	  return length ? baseFlatten(array) : [];
+	}
+
+	module.exports = flatten;
+
+
+/***/ },
+/* 98 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var arrayPush = __webpack_require__(99),
+	    isArguments = __webpack_require__(25),
+	    isArray = __webpack_require__(3),
+	    isArrayLikeObject = __webpack_require__(26);
+
+	/**
+	 * The base implementation of `_.flatten` with support for restricting flattening.
+	 *
+	 * @private
+	 * @param {Array} array The array to flatten.
+	 * @param {boolean} [isDeep] Specify a deep flatten.
+	 * @param {boolean} [isStrict] Restrict flattening to arrays-like objects.
+	 * @param {Array} [result=[]] The initial result value.
+	 * @returns {Array} Returns the new flattened array.
+	 */
+	function baseFlatten(array, isDeep, isStrict, result) {
+	  result || (result = []);
+
+	  var index = -1,
+	      length = array.length;
+
+	  while (++index < length) {
+	    var value = array[index];
+	    if (isArrayLikeObject(value) &&
+	        (isStrict || isArray(value) || isArguments(value))) {
+	      if (isDeep) {
+	        // Recursively flatten arrays (susceptible to call stack limits).
+	        baseFlatten(value, isDeep, isStrict, result);
+	      } else {
+	        arrayPush(result, value);
+	      }
+	    } else if (!isStrict) {
+	      result[result.length] = value;
+	    }
+	  }
+	  return result;
+	}
+
+	module.exports = baseFlatten;
+
+
+/***/ },
+/* 99 */
+/***/ function(module, exports) {
+
+	/**
+	 * Appends the elements of `values` to `array`.
+	 *
+	 * @private
+	 * @param {Array} array The array to modify.
+	 * @param {Array} values The values to append.
+	 * @returns {Array} Returns `array`.
+	 */
+	function arrayPush(array, values) {
+	  var index = -1,
+	      length = values.length,
+	      offset = array.length;
+
+	  while (++index < length) {
+	    array[offset + index] = values[index];
+	  }
+	  return array;
+	}
+
+	module.exports = arrayPush;
+
+
+/***/ },
+/* 100 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var version = __webpack_require__(101)
+	var isVNode = __webpack_require__(102)
+	var isWidget = __webpack_require__(103)
+	var isThunk = __webpack_require__(104)
+	var isVHook = __webpack_require__(105)
 
 	module.exports = VirtualNode
 
@@ -3570,17 +3669,17 @@ var Vulture =
 
 
 /***/ },
-/* 98 */
+/* 101 */
 /***/ function(module, exports) {
 
 	module.exports = "2"
 
 
 /***/ },
-/* 99 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var version = __webpack_require__(98)
+	var version = __webpack_require__(101)
 
 	module.exports = isVirtualNode
 
@@ -3590,7 +3689,7 @@ var Vulture =
 
 
 /***/ },
-/* 100 */
+/* 103 */
 /***/ function(module, exports) {
 
 	module.exports = isWidget
@@ -3601,7 +3700,7 @@ var Vulture =
 
 
 /***/ },
-/* 101 */
+/* 104 */
 /***/ function(module, exports) {
 
 	module.exports = isThunk
@@ -3612,7 +3711,7 @@ var Vulture =
 
 
 /***/ },
-/* 102 */
+/* 105 */
 /***/ function(module, exports) {
 
 	module.exports = isHook
@@ -3625,10 +3724,10 @@ var Vulture =
 
 
 /***/ },
-/* 103 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var version = __webpack_require__(98)
+	var version = __webpack_require__(101)
 
 	module.exports = VirtualText
 
@@ -3641,10 +3740,10 @@ var Vulture =
 
 
 /***/ },
-/* 104 */
+/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var version = __webpack_require__(98)
+	var version = __webpack_require__(101)
 
 	module.exports = isVirtualText
 
@@ -3654,7 +3753,7 @@ var Vulture =
 
 
 /***/ },
-/* 105 */
+/* 108 */
 /***/ function(module, exports) {
 
 	'use strict'
@@ -3689,14 +3788,14 @@ var Vulture =
 
 
 /***/ },
-/* 106 */
+/* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var createElement = __webpack_require__(107)
-	var diffNodes = __webpack_require__(114)
-	var patchDOM = __webpack_require__(119)
+	var createElement = __webpack_require__(110)
+	var diffNodes = __webpack_require__(117)
+	var patchDOM = __webpack_require__(122)
 
 	/**
 	 * Renders a virtual tree to a container dom node. Once rendered, the virtual
@@ -3796,26 +3895,26 @@ var Vulture =
 
 
 /***/ },
-/* 107 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var createElement = __webpack_require__(108)
+	var createElement = __webpack_require__(111)
 
 	module.exports = createElement
 
 
 /***/ },
-/* 108 */
+/* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var document = __webpack_require__(109)
+	var document = __webpack_require__(112)
 
-	var applyProperties = __webpack_require__(111)
+	var applyProperties = __webpack_require__(114)
 
-	var isVNode = __webpack_require__(99)
-	var isVText = __webpack_require__(104)
-	var isWidget = __webpack_require__(100)
-	var handleThunk = __webpack_require__(113)
+	var isVNode = __webpack_require__(102)
+	var isVText = __webpack_require__(107)
+	var isWidget = __webpack_require__(103)
+	var handleThunk = __webpack_require__(116)
 
 	module.exports = createElement
 
@@ -3857,12 +3956,12 @@ var Vulture =
 
 
 /***/ },
-/* 109 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {var topLevel = typeof global !== 'undefined' ? global :
 	    typeof window !== 'undefined' ? window : {}
-	var minDoc = __webpack_require__(110);
+	var minDoc = __webpack_require__(113);
 
 	if (typeof document !== 'undefined') {
 	    module.exports = document;
@@ -3879,17 +3978,17 @@ var Vulture =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 110 */
+/* 113 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 111 */
+/* 114 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(112)
-	var isHook = __webpack_require__(102)
+	var isObject = __webpack_require__(115)
+	var isHook = __webpack_require__(105)
 
 	module.exports = applyProperties
 
@@ -3988,7 +4087,7 @@ var Vulture =
 
 
 /***/ },
-/* 112 */
+/* 115 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3999,13 +4098,13 @@ var Vulture =
 
 
 /***/ },
-/* 113 */
+/* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isVNode = __webpack_require__(99)
-	var isVText = __webpack_require__(104)
-	var isWidget = __webpack_require__(100)
-	var isThunk = __webpack_require__(101)
+	var isVNode = __webpack_require__(102)
+	var isVText = __webpack_require__(107)
+	var isWidget = __webpack_require__(103)
+	var isThunk = __webpack_require__(104)
 
 	module.exports = handleThunk
 
@@ -4045,28 +4144,28 @@ var Vulture =
 
 
 /***/ },
-/* 114 */
+/* 117 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var diff = __webpack_require__(115)
+	var diff = __webpack_require__(118)
 
 	module.exports = diff
 
 
 /***/ },
-/* 115 */
+/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(116)
+	var isArray = __webpack_require__(119)
 
-	var VPatch = __webpack_require__(117)
-	var isVNode = __webpack_require__(99)
-	var isVText = __webpack_require__(104)
-	var isWidget = __webpack_require__(100)
-	var isThunk = __webpack_require__(101)
-	var handleThunk = __webpack_require__(113)
+	var VPatch = __webpack_require__(120)
+	var isVNode = __webpack_require__(102)
+	var isVText = __webpack_require__(107)
+	var isWidget = __webpack_require__(103)
+	var isThunk = __webpack_require__(104)
+	var handleThunk = __webpack_require__(116)
 
-	var diffProps = __webpack_require__(118)
+	var diffProps = __webpack_require__(121)
 
 	module.exports = diff
 
@@ -4487,7 +4586,7 @@ var Vulture =
 
 
 /***/ },
-/* 116 */
+/* 119 */
 /***/ function(module, exports) {
 
 	var nativeIsArray = Array.isArray
@@ -4501,10 +4600,10 @@ var Vulture =
 
 
 /***/ },
-/* 117 */
+/* 120 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var version = __webpack_require__(98)
+	var version = __webpack_require__(101)
 
 	VirtualPatch.NONE = 0
 	VirtualPatch.VTEXT = 1
@@ -4529,11 +4628,11 @@ var Vulture =
 
 
 /***/ },
-/* 118 */
+/* 121 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(112)
-	var isHook = __webpack_require__(102)
+	var isObject = __webpack_require__(115)
+	var isHook = __webpack_require__(105)
 
 	module.exports = diffProps
 
@@ -4593,24 +4692,24 @@ var Vulture =
 
 
 /***/ },
-/* 119 */
+/* 122 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var patch = __webpack_require__(120)
+	var patch = __webpack_require__(123)
 
 	module.exports = patch
 
 
 /***/ },
-/* 120 */
+/* 123 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var document = __webpack_require__(109)
-	var isArray = __webpack_require__(116)
+	var document = __webpack_require__(112)
+	var isArray = __webpack_require__(119)
 
-	var render = __webpack_require__(108)
-	var domIndex = __webpack_require__(121)
-	var patchOp = __webpack_require__(122)
+	var render = __webpack_require__(111)
+	var domIndex = __webpack_require__(124)
+	var patchOp = __webpack_require__(125)
 	module.exports = patch
 
 	function patch(rootNode, patches, renderOptions) {
@@ -4688,7 +4787,7 @@ var Vulture =
 
 
 /***/ },
-/* 121 */
+/* 124 */
 /***/ function(module, exports) {
 
 	// Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
@@ -4779,15 +4878,15 @@ var Vulture =
 
 
 /***/ },
-/* 122 */
+/* 125 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var applyProperties = __webpack_require__(111)
+	var applyProperties = __webpack_require__(114)
 
-	var isWidget = __webpack_require__(100)
-	var VPatch = __webpack_require__(117)
+	var isWidget = __webpack_require__(103)
+	var VPatch = __webpack_require__(120)
 
-	var updateWidget = __webpack_require__(123)
+	var updateWidget = __webpack_require__(126)
 
 	module.exports = applyPatch
 
@@ -4936,10 +5035,10 @@ var Vulture =
 
 
 /***/ },
-/* 123 */
+/* 126 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isWidget = __webpack_require__(100)
+	var isWidget = __webpack_require__(103)
 
 	module.exports = updateWidget
 
@@ -4957,7 +5056,7 @@ var Vulture =
 
 
 /***/ },
-/* 124 */
+/* 127 */
 /***/ function(module, exports) {
 
 	'use strict'
@@ -5062,17 +5161,17 @@ var Vulture =
 
 
 /***/ },
-/* 125 */
+/* 128 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var noop = __webpack_require__(126)
+	var noop = __webpack_require__(129)
 	var isFunction = __webpack_require__(11)
-	var clone = __webpack_require__(127)
-	var assign = __webpack_require__(150)
-	var diffNodes = __webpack_require__(114)
-	var patchDOM = __webpack_require__(119)
+	var clone = __webpack_require__(130)
+	var assign = __webpack_require__(153)
+	var diffNodes = __webpack_require__(117)
+	var patchDOM = __webpack_require__(122)
 
 	/**
 	 * Takes a component function and gives it stateful capabilities. This is useful
@@ -5242,7 +5341,7 @@ var Vulture =
 
 
 /***/ },
-/* 126 */
+/* 129 */
 /***/ function(module, exports) {
 
 	/**
@@ -5267,10 +5366,10 @@ var Vulture =
 
 
 /***/ },
-/* 127 */
+/* 130 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseClone = __webpack_require__(128);
+	var baseClone = __webpack_require__(131);
 
 	/**
 	 * Creates a shallow clone of `value`.
@@ -5304,20 +5403,20 @@ var Vulture =
 
 
 /***/ },
-/* 128 */
+/* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Stack = __webpack_require__(36),
-	    arrayEach = __webpack_require__(129),
-	    assignValue = __webpack_require__(130),
-	    baseAssign = __webpack_require__(131),
+	    arrayEach = __webpack_require__(132),
+	    assignValue = __webpack_require__(133),
+	    baseAssign = __webpack_require__(134),
 	    baseForOwn = __webpack_require__(17),
-	    copyArray = __webpack_require__(134),
-	    copySymbols = __webpack_require__(135),
+	    copyArray = __webpack_require__(137),
+	    copySymbols = __webpack_require__(138),
 	    getTag = __webpack_require__(73),
-	    initCloneArray = __webpack_require__(137),
-	    initCloneByTag = __webpack_require__(138),
-	    initCloneObject = __webpack_require__(148),
+	    initCloneArray = __webpack_require__(140),
+	    initCloneByTag = __webpack_require__(141),
+	    initCloneObject = __webpack_require__(151),
 	    isArray = __webpack_require__(3),
 	    isHostObject = __webpack_require__(6),
 	    isObject = __webpack_require__(12);
@@ -5433,7 +5532,7 @@ var Vulture =
 
 
 /***/ },
-/* 129 */
+/* 132 */
 /***/ function(module, exports) {
 
 	/**
@@ -5461,7 +5560,7 @@ var Vulture =
 
 
 /***/ },
-/* 130 */
+/* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {var eq = __webpack_require__(41);
@@ -5496,10 +5595,10 @@ var Vulture =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 131 */
+/* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(132),
+	var copyObject = __webpack_require__(135),
 	    keys = __webpack_require__(20);
 
 	/**
@@ -5519,10 +5618,10 @@ var Vulture =
 
 
 /***/ },
-/* 132 */
+/* 135 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObjectWith = __webpack_require__(133);
+	var copyObjectWith = __webpack_require__(136);
 
 	/**
 	 * Copies properties of `source` to `object`.
@@ -5541,10 +5640,10 @@ var Vulture =
 
 
 /***/ },
-/* 133 */
+/* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var assignValue = __webpack_require__(130);
+	var assignValue = __webpack_require__(133);
 
 	/**
 	 * This function is like `copyObject` except that it accepts a function to
@@ -5576,7 +5675,7 @@ var Vulture =
 
 
 /***/ },
-/* 134 */
+/* 137 */
 /***/ function(module, exports) {
 
 	/**
@@ -5602,11 +5701,11 @@ var Vulture =
 
 
 /***/ },
-/* 135 */
+/* 138 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(132),
-	    getSymbols = __webpack_require__(136);
+	var copyObject = __webpack_require__(135),
+	    getSymbols = __webpack_require__(139);
 
 	/**
 	 * Copies own symbol properties of `source` to `object`.
@@ -5624,7 +5723,7 @@ var Vulture =
 
 
 /***/ },
-/* 136 */
+/* 139 */
 /***/ function(module, exports) {
 
 	/** Built-in value references. */
@@ -5645,7 +5744,7 @@ var Vulture =
 
 
 /***/ },
-/* 137 */
+/* 140 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/** Used for built-in method references. */
@@ -5678,15 +5777,15 @@ var Vulture =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 138 */
+/* 141 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneBuffer = __webpack_require__(139),
-	    cloneMap = __webpack_require__(140),
-	    cloneRegExp = __webpack_require__(143),
-	    cloneSet = __webpack_require__(144),
-	    cloneSymbol = __webpack_require__(146),
-	    cloneTypedArray = __webpack_require__(147);
+	var cloneBuffer = __webpack_require__(142),
+	    cloneMap = __webpack_require__(143),
+	    cloneRegExp = __webpack_require__(146),
+	    cloneSet = __webpack_require__(147),
+	    cloneSymbol = __webpack_require__(149),
+	    cloneTypedArray = __webpack_require__(150);
 
 	/** `Object#toString` result references. */
 	var boolTag = '[object Boolean]',
@@ -5758,7 +5857,7 @@ var Vulture =
 
 
 /***/ },
-/* 139 */
+/* 142 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Uint8Array = __webpack_require__(69);
@@ -5783,11 +5882,11 @@ var Vulture =
 
 
 /***/ },
-/* 140 */
+/* 143 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var addMapEntry = __webpack_require__(141),
-	    arrayReduce = __webpack_require__(142),
+	var addMapEntry = __webpack_require__(144),
+	    arrayReduce = __webpack_require__(145),
 	    mapToArray = __webpack_require__(70);
 
 	/**
@@ -5806,7 +5905,7 @@ var Vulture =
 
 
 /***/ },
-/* 141 */
+/* 144 */
 /***/ function(module, exports) {
 
 	/**
@@ -5826,7 +5925,7 @@ var Vulture =
 
 
 /***/ },
-/* 142 */
+/* 145 */
 /***/ function(module, exports) {
 
 	/**
@@ -5857,7 +5956,7 @@ var Vulture =
 
 
 /***/ },
-/* 143 */
+/* 146 */
 /***/ function(module, exports) {
 
 	/** Used to match `RegExp` flags from their coerced string values. */
@@ -5882,11 +5981,11 @@ var Vulture =
 
 
 /***/ },
-/* 144 */
+/* 147 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var addSetEntry = __webpack_require__(145),
-	    arrayReduce = __webpack_require__(142),
+	var addSetEntry = __webpack_require__(148),
+	    arrayReduce = __webpack_require__(145),
 	    setToArray = __webpack_require__(71);
 
 	/**
@@ -5905,7 +6004,7 @@ var Vulture =
 
 
 /***/ },
-/* 145 */
+/* 148 */
 /***/ function(module, exports) {
 
 	/**
@@ -5925,7 +6024,7 @@ var Vulture =
 
 
 /***/ },
-/* 146 */
+/* 149 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _Symbol = __webpack_require__(14);
@@ -5949,10 +6048,10 @@ var Vulture =
 
 
 /***/ },
-/* 147 */
+/* 150 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var cloneBuffer = __webpack_require__(139);
+	var cloneBuffer = __webpack_require__(142);
 
 	/**
 	 * Creates a clone of `typedArray`.
@@ -5973,10 +6072,10 @@ var Vulture =
 
 
 /***/ },
-/* 148 */
+/* 151 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseCreate = __webpack_require__(149),
+	var baseCreate = __webpack_require__(152),
 	    isFunction = __webpack_require__(11);
 
 	/**
@@ -5995,7 +6094,7 @@ var Vulture =
 
 
 /***/ },
-/* 149 */
+/* 152 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isObject = __webpack_require__(12);
@@ -6024,11 +6123,11 @@ var Vulture =
 
 
 /***/ },
-/* 150 */
+/* 153 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var copyObject = __webpack_require__(132),
-	    createAssigner = __webpack_require__(151),
+	var copyObject = __webpack_require__(135),
+	    createAssigner = __webpack_require__(154),
 	    keys = __webpack_require__(20);
 
 	/**
@@ -6069,11 +6168,11 @@ var Vulture =
 
 
 /***/ },
-/* 151 */
+/* 154 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isIterateeCall = __webpack_require__(152),
-	    rest = __webpack_require__(153);
+	var isIterateeCall = __webpack_require__(155),
+	    rest = __webpack_require__(156);
 
 	/**
 	 * Creates a function like `_.assign`.
@@ -6109,7 +6208,7 @@ var Vulture =
 
 
 /***/ },
-/* 152 */
+/* 155 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var eq = __webpack_require__(41),
@@ -6143,10 +6242,10 @@ var Vulture =
 
 
 /***/ },
-/* 153 */
+/* 156 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var apply = __webpack_require__(154),
+	var apply = __webpack_require__(157),
 	    toInteger = __webpack_require__(9);
 
 	/** Used as the `TypeError` message for "Functions" methods. */
@@ -6210,7 +6309,7 @@ var Vulture =
 
 
 /***/ },
-/* 154 */
+/* 157 */
 /***/ function(module, exports) {
 
 	/**
@@ -6238,12 +6337,12 @@ var Vulture =
 
 
 /***/ },
-/* 155 */
+/* 158 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var toArray = __webpack_require__(156)
+	var toArray = __webpack_require__(159)
 
 	/**
 	 * The last argument is the component, all prior arguments are decorators for
@@ -6288,19 +6387,19 @@ var Vulture =
 
 
 /***/ },
-/* 156 */
+/* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _Symbol = __webpack_require__(14),
-	    copyArray = __webpack_require__(134),
+	    copyArray = __webpack_require__(137),
 	    getTag = __webpack_require__(73),
 	    isArrayLike = __webpack_require__(27),
 	    isString = __webpack_require__(2),
-	    iteratorToArray = __webpack_require__(157),
+	    iteratorToArray = __webpack_require__(160),
 	    mapToArray = __webpack_require__(70),
 	    setToArray = __webpack_require__(71),
-	    stringToArray = __webpack_require__(158),
-	    values = __webpack_require__(159);
+	    stringToArray = __webpack_require__(161),
+	    values = __webpack_require__(162);
 
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -6351,7 +6450,7 @@ var Vulture =
 
 
 /***/ },
-/* 157 */
+/* 160 */
 /***/ function(module, exports) {
 
 	/**
@@ -6375,7 +6474,7 @@ var Vulture =
 
 
 /***/ },
-/* 158 */
+/* 161 */
 /***/ function(module, exports) {
 
 	/** Used to compose unicode character classes. */
@@ -6417,10 +6516,10 @@ var Vulture =
 
 
 /***/ },
-/* 159 */
+/* 162 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseValues = __webpack_require__(160),
+	var baseValues = __webpack_require__(163),
 	    keys = __webpack_require__(20);
 
 	/**
@@ -6456,7 +6555,7 @@ var Vulture =
 
 
 /***/ },
-/* 160 */
+/* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var arrayMap = __webpack_require__(80);
@@ -6481,14 +6580,14 @@ var Vulture =
 
 
 /***/ },
-/* 161 */
+/* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
 	var isObject = __webpack_require__(12)
 	var isArray = __webpack_require__(3)
-	var VNode = __webpack_require__(97)
+	var VNode = __webpack_require__(100)
 
 	/**
 	 * Takes a virtual DOM tree and transforms every node in it. Children are
@@ -6528,12 +6627,12 @@ var Vulture =
 
 
 /***/ },
-/* 162 */
+/* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var map = __webpack_require__(161)
+	var map = __webpack_require__(164)
 
 	/**
 	 * Iterates over all nodes in a virtual DOM tree. Uses the same implementation
@@ -6554,12 +6653,12 @@ var Vulture =
 
 
 /***/ },
-/* 163 */
+/* 166 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var forEach = __webpack_require__(162)
+	var forEach = __webpack_require__(165)
 
 	/**
 	 * Turns a virtual DOM tree into a single value. Maintains the standard `reduce`
@@ -6583,12 +6682,12 @@ var Vulture =
 
 
 /***/ },
-/* 164 */
+/* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var toArray = __webpack_require__(156)
+	var toArray = __webpack_require__(159)
 
 	/**
 	 * Takes all of the arguments and returns a thunk which will decorate the
@@ -6613,29 +6712,29 @@ var Vulture =
 
 
 /***/ },
-/* 165 */
+/* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	module.exports = __webpack_require__(166)
+	module.exports = __webpack_require__(169)
 
 
 /***/ },
-/* 166 */
+/* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Partial = __webpack_require__(167);
+	var Partial = __webpack_require__(170);
 
 	module.exports = Partial();
 
 
 /***/ },
-/* 167 */
+/* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var shallowEq = __webpack_require__(168);
-	var Thunk = __webpack_require__(169);
+	var shallowEq = __webpack_require__(171);
+	var Thunk = __webpack_require__(172);
 
 	module.exports = createPartial;
 
@@ -6669,7 +6768,7 @@ var Vulture =
 
 
 /***/ },
-/* 168 */
+/* 171 */
 /***/ function(module, exports) {
 
 	module.exports = shallowEq;
@@ -6696,7 +6795,7 @@ var Vulture =
 
 
 /***/ },
-/* 169 */
+/* 172 */
 /***/ function(module, exports) {
 
 	function Thunk(fn, args, key, eqArgs) {
