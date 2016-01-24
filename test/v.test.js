@@ -104,8 +104,8 @@ describe('v()', function () {
   })
 
   it('will set the id to key when key does not exist', function () {
-    assert.deepEqual(v('DIV', { id: 'a' }, []), new VNode('DIV', { id: 'a', key: noop() }, [], 'a'))
-    assert.deepEqual(v('DIV', { id: 'a', key: 'b' }, []), new VNode('DIV', { id: 'a', key: noop() }, [], 'b'))
+    assert.deepEqual(v('DIV', { id: 'a' }, []), new VNode('DIV', { id: 'a' }, [], 'a'))
+    assert.deepEqual(v('DIV', { id: 'a', key: 'b' }, []), new VNode('DIV', { id: 'a' }, [], 'b'))
   })
 
   it('will discard falsey children', function () {
