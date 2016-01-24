@@ -1,5 +1,4 @@
 var assert = require('assert')
-var noop = require('lodash/noop')
 var identity = require('lodash/identity')
 var jsdom = require('jsdom').jsdom
 var createElement = require('virtual-dom/create-element')
@@ -118,5 +117,12 @@ describe('v()', function () {
 
   it('will flatten arrays', function () {
     assert.deepEqual(v('div', {}, [v(), [v(), v()], v()]), new VNode('div', {}, [v(), v(), v(), v()]))
+  })
+
+  it('will make `aria-*` and `data-*` attributes', function () {
+    assert.deepEqual(
+      v('div', { foo: 'bar', 'aria-hidden': true, 'data-data': 'hello' }),
+      new VNode('div', { foo: 'bar', attributes: { 'aria-hidden': true, 'data-data': 'hello' } })
+    )
   })
 })
