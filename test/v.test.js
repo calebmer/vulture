@@ -111,4 +111,8 @@ describe('v()', function () {
   it('will discard falsey children', function () {
     assert.deepEqual(v('div', {}, [false, v(), null, true && v()]), v('div', {}, [v(), v()]))
   })
+
+  it('will not discard numbers', function () {
+    assert.deepEqual(v('div', {}, [false, null, v(), 0, 1, 2, 3, null]), v('div', {}, [v(), 0, 1, 2, 3]))
+  })
 })
