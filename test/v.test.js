@@ -115,4 +115,8 @@ describe('v()', function () {
   it('will not discard numbers', function () {
     assert.deepEqual(v('div', {}, [false, null, v(), 0, 1, 2, 3, null]), new VNode('div', {}, [v(), { text: '0' }, { text: '1' }, { text: '2' }, { text: '3' }]))
   })
+
+  it('will flatten arrays', function () {
+    assert.deepEqual(v('div', {}, [v(), [v(), v()], v()]), new VNode('div', {}, [v(), v(), v(), v()]))
+  })
 })
