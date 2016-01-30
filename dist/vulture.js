@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.9.3
+ * Vulture 3.10.0
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -1268,36 +1268,44 @@ var Vulture =
 
 	'use strict'
 
+	var isString = __webpack_require__(2)
 	var Hook = __webpack_require__(34)
 
 	/**
-	 * Hooks an event onto a DOM node. Complies with the `virtual-dom` hook
-	 * contract.
+	 * Hooks an event listener onto a dom node. May pass a string event name and a
+	 * function listener, or an object of multiple event/listener pairs.
 	 *
 	 * @constructor
 	 * @param {string} The event to attach the listener to.
 	 * @param {function} The event listener.
 	 */
 
-	function EventHook (event, listener) {
-	  if (!(this instanceof EventHook)) {
-	    return new EventHook(event, listener)
-	  }
-
+	function EventHook (listeners, listener) {
 	  Hook.call(this)
 
-	  this.event = event
-	  this.listener = listener
+	  if (isString(listeners)) {
+	    var eventName = listeners
+	    this.listeners = {}
+	    this.listeners[eventName] = listener
+	  } else {
+	    this.listeners = listeners
+	  }
 	}
 
 	EventHook.prototype = Object.create(Hook.prototype)
 
 	EventHook.prototype.hook = function hook (node) {
-	  node.addEventListener(this.event, this.listener)
+	  var listeners = this.listeners
+	  Object.keys(listeners).forEach(function (eventName) {
+	    node.addEventListener(eventName, listeners[eventName])
+	  })
 	}
 
 	EventHook.prototype.unhook = function unhook (node) {
-	  node.removeEventListener(this.event, this.listener)
+	  var listeners = this.listeners
+	  Object.keys(listeners).forEach(function (eventName) {
+	    node.removeEventListener(eventName, listeners[eventName])
+	  })
 	}
 
 	module.exports = EventHook
