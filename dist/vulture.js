@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.9.0
+ * Vulture 3.9.1
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -58,19 +58,19 @@ var Vulture =
 
 	Vulture.v = __webpack_require__(1)
 
-	Vulture.renderToDOM = __webpack_require__(35)
-	Vulture.render = __webpack_require__(35)
+	Vulture.renderToDOM = __webpack_require__(36)
+	Vulture.render = __webpack_require__(36)
 
-	Vulture.makeLazy = __webpack_require__(53)
-	Vulture.applyState = __webpack_require__(54)
-	Vulture.createComponent = __webpack_require__(127)
+	Vulture.makeLazy = __webpack_require__(54)
+	Vulture.applyState = __webpack_require__(55)
+	Vulture.createComponent = __webpack_require__(129)
 
-	Vulture.map = __webpack_require__(134)
-	Vulture.forEach = __webpack_require__(135)
-	Vulture.reduce = __webpack_require__(136)
+	Vulture.map = __webpack_require__(136)
+	Vulture.forEach = __webpack_require__(137)
+	Vulture.reduce = __webpack_require__(138)
 
-	Vulture.decorate = __webpack_require__(137)
-	Vulture.lazy = __webpack_require__(138)
+	Vulture.decorate = __webpack_require__(139)
+	Vulture.lazy = __webpack_require__(140)
 
 	module.exports = Vulture
 
@@ -93,6 +93,7 @@ var Vulture =
 	var isWidget = __webpack_require__(28)
 	var isVThunk = __webpack_require__(29)
 	var EventHook = __webpack_require__(33)
+	var HardSetHook = __webpack_require__(35)
 
 	var propertyAliases = {
 	  'accept-charset': 'acceptCharset',
@@ -148,12 +149,23 @@ var Vulture =
 	      continue
 	    }
 
+	    if (property === 'value') {
+	      // We want to hard set the value property to bypass the virual dom
+	      // diffing. For example, if in a diff the `a` node and the `b` node both
+	      // have the same value if the value has been changed between `a` and `b`
+	      // the value will not be updated. This hook fixes that bug.
+	      transformedProperties.value = new HardSetHook(value)
+	      continue
+	    }
+
 	    if (startsWith(property, 'on')) {
 	      var event = property.substring(2).toLowerCase()
 	      transformedProperties[property] = new EventHook(event, value)
 	      continue
 	    }
 
+	    // TODO: When considering breaking changes, test the performance w/ and
+	    // w/o this. There might be a more performant solution.
 	    if (startsWith(property, 'aria-') || startsWith(property, 'data-')) {
 	      if (!attributes) {
 	        attributes = {}
@@ -1316,9 +1328,44 @@ var Vulture =
 
 	'use strict'
 
-	var createElement = __webpack_require__(36)
-	var diffNodes = __webpack_require__(43)
-	var patchDOM = __webpack_require__(48)
+	var Hook = __webpack_require__(34)
+
+	/**
+	 * A hook to always set the specified value on the node. This bypasses the
+	 * virtual dom diff algorithm and always sets the value.
+	 *
+	 * @constructor
+	 * @param {any} The value to hard set.
+	 */
+
+	function HardSetHook (value) {
+	  if (!(this instanceof HardSetHook)) {
+	    return new HardSetHook(value)
+	  }
+
+	  Hook.call(this)
+
+	  this.value = value
+	}
+
+	HardSetHook.prototype = Object.create(Hook.prototype)
+
+	HardSetHook.prototype.hook = function hook (node, property) {
+	  node[property] = this.value
+	}
+
+	module.exports = HardSetHook
+
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict'
+
+	var createElement = __webpack_require__(37)
+	var diffNodes = __webpack_require__(44)
+	var patchDOM = __webpack_require__(49)
 
 	/**
 	 * Renders a virtual tree to a container dom node. Once rendered, the virtual
@@ -1418,26 +1465,26 @@ var Vulture =
 
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var createElement = __webpack_require__(37)
+	var createElement = __webpack_require__(38)
 
 	module.exports = createElement
 
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var document = __webpack_require__(38)
+	var document = __webpack_require__(39)
 
-	var applyProperties = __webpack_require__(40)
+	var applyProperties = __webpack_require__(41)
 
 	var isVNode = __webpack_require__(27)
 	var isVText = __webpack_require__(32)
 	var isWidget = __webpack_require__(28)
-	var handleThunk = __webpack_require__(42)
+	var handleThunk = __webpack_require__(43)
 
 	module.exports = createElement
 
@@ -1479,12 +1526,12 @@ var Vulture =
 
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {var topLevel = typeof global !== 'undefined' ? global :
 	    typeof window !== 'undefined' ? window : {}
-	var minDoc = __webpack_require__(39);
+	var minDoc = __webpack_require__(40);
 
 	if (typeof document !== 'undefined') {
 	    module.exports = document;
@@ -1501,16 +1548,16 @@ var Vulture =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(41)
+	var isObject = __webpack_require__(42)
 	var isHook = __webpack_require__(30)
 
 	module.exports = applyProperties
@@ -1610,7 +1657,7 @@ var Vulture =
 
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1621,7 +1668,7 @@ var Vulture =
 
 
 /***/ },
-/* 42 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isVNode = __webpack_require__(27)
@@ -1667,28 +1714,28 @@ var Vulture =
 
 
 /***/ },
-/* 43 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var diff = __webpack_require__(44)
+	var diff = __webpack_require__(45)
 
 	module.exports = diff
 
 
 /***/ },
-/* 44 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(45)
+	var isArray = __webpack_require__(46)
 
-	var VPatch = __webpack_require__(46)
+	var VPatch = __webpack_require__(47)
 	var isVNode = __webpack_require__(27)
 	var isVText = __webpack_require__(32)
 	var isWidget = __webpack_require__(28)
 	var isThunk = __webpack_require__(29)
-	var handleThunk = __webpack_require__(42)
+	var handleThunk = __webpack_require__(43)
 
-	var diffProps = __webpack_require__(47)
+	var diffProps = __webpack_require__(48)
 
 	module.exports = diff
 
@@ -2109,7 +2156,7 @@ var Vulture =
 
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports) {
 
 	var nativeIsArray = Array.isArray
@@ -2123,7 +2170,7 @@ var Vulture =
 
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var version = __webpack_require__(26)
@@ -2151,10 +2198,10 @@ var Vulture =
 
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(41)
+	var isObject = __webpack_require__(42)
 	var isHook = __webpack_require__(30)
 
 	module.exports = diffProps
@@ -2215,24 +2262,24 @@ var Vulture =
 
 
 /***/ },
-/* 48 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var patch = __webpack_require__(49)
+	var patch = __webpack_require__(50)
 
 	module.exports = patch
 
 
 /***/ },
-/* 49 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var document = __webpack_require__(38)
-	var isArray = __webpack_require__(45)
+	var document = __webpack_require__(39)
+	var isArray = __webpack_require__(46)
 
-	var render = __webpack_require__(37)
-	var domIndex = __webpack_require__(50)
-	var patchOp = __webpack_require__(51)
+	var render = __webpack_require__(38)
+	var domIndex = __webpack_require__(51)
+	var patchOp = __webpack_require__(52)
 	module.exports = patch
 
 	function patch(rootNode, patches, renderOptions) {
@@ -2310,7 +2357,7 @@ var Vulture =
 
 
 /***/ },
-/* 50 */
+/* 51 */
 /***/ function(module, exports) {
 
 	// Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
@@ -2401,15 +2448,15 @@ var Vulture =
 
 
 /***/ },
-/* 51 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var applyProperties = __webpack_require__(40)
+	var applyProperties = __webpack_require__(41)
 
 	var isWidget = __webpack_require__(28)
-	var VPatch = __webpack_require__(46)
+	var VPatch = __webpack_require__(47)
 
-	var updateWidget = __webpack_require__(52)
+	var updateWidget = __webpack_require__(53)
 
 	module.exports = applyPatch
 
@@ -2558,7 +2605,7 @@ var Vulture =
 
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var isWidget = __webpack_require__(28)
@@ -2579,7 +2626,7 @@ var Vulture =
 
 
 /***/ },
-/* 53 */
+/* 54 */
 /***/ function(module, exports) {
 
 	'use strict'
@@ -2684,17 +2731,15 @@ var Vulture =
 
 
 /***/ },
-/* 54 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var noop = __webpack_require__(55)
 	var isFunction = __webpack_require__(11)
 	var clone = __webpack_require__(56)
 	var assign = __webpack_require__(122)
-	var diffNodes = __webpack_require__(43)
-	var patchDOM = __webpack_require__(48)
+	var UpdateHook = __webpack_require__(127)
 
 	/**
 	 * Takes a component function and gives it stateful capabilities. This is useful
@@ -2740,7 +2785,7 @@ var Vulture =
 
 	      return {
 	        type: 'Thunk',
-	        hook: new StateHook(),
+	        hook: new UpdateHook(),
 	        render: function renderThunk (previous) {
 	          var thunk = this
 	          var state = this.state = previous && previous.state ? previous.state : clone(initialState)
@@ -2823,69 +2868,6 @@ var Vulture =
 	function getLatest (object) {
 	  return object.next && object.next !== object ? getLatest(object.next) : object
 	}
-
-	/**
-	 * A hook for specifically updating a stateful component.
-	 *
-	 * @private
-	 * @see applyState
-	 * @constructor
-	 */
-
-	function StateHook () {
-	  this.update = noop
-	}
-
-	/**
-	 * Sets the update method so that when it is called a DOM node is updated.
-	 *
-	 * @param {DOMNode} The DOM node to be updated when the state changes.
-	 */
-
-	StateHook.prototype.hook = function hook (node) {
-	  this.update = function update (thunk) {
-	    var lastVNode = thunk.vnode
-	    var nextVNode = thunk.render(thunk)
-	    var patches = diffNodes(lastVNode, nextVNode)
-	    patchDOM(node, patches)
-
-	    // Make sure the thunk has the most recent node to be diffed.
-	    thunk.vnode = nextVNode
-	  }
-	}
-
-	/**
-	 * Removes the update function.
-	 */
-
-	// StateHook.prototype.unhook = function unhook () {
-	//   this.update = noop
-	// }
-
-
-/***/ },
-/* 55 */
-/***/ function(module, exports) {
-
-	/**
-	 * A no-operation function that returns `undefined` regardless of the
-	 * arguments it receives.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Util
-	 * @example
-	 *
-	 * var object = { 'user': 'fred' };
-	 *
-	 * _.noop(object) === undefined;
-	 * // => true
-	 */
-	function noop() {
-	  // No operation performed.
-	}
-
-	module.exports = noop;
 
 
 /***/ },
@@ -5084,7 +5066,78 @@ var Vulture =
 
 	'use strict'
 
-	var toArray = __webpack_require__(128)
+	var noop = __webpack_require__(128)
+	var diffNodes = __webpack_require__(44)
+	var patchDOM = __webpack_require__(49)
+	var Hook = __webpack_require__(34)
+
+	/**
+	 * A hook made to update a thunk.
+	 *
+	 * @constructor
+	 * @param {string} The event to attach the listener to.
+	 * @param {function} The event listener.
+	 */
+
+	function UpdateHook () {
+	  if (!(this instanceof UpdateHook)) {
+	    return new UpdateHook()
+	  }
+
+	  Hook.call(this)
+
+	  this.update = noop
+	}
+
+	UpdateHook.prototype = Object.create(Hook.prototype)
+
+	UpdateHook.prototype.hook = function hook (node) {
+	  this.update = function update (thunk) {
+	    var lastVNode = thunk.vnode
+	    var nextVNode = thunk.render(thunk)
+	    var patches = diffNodes(lastVNode, nextVNode)
+	    patchDOM(node, patches)
+
+	    // Make sure the thunk has the most recent node to be diffed.
+	    thunk.vnode = nextVNode
+	  }
+	}
+
+	module.exports = UpdateHook
+
+
+/***/ },
+/* 128 */
+/***/ function(module, exports) {
+
+	/**
+	 * A no-operation function that returns `undefined` regardless of the
+	 * arguments it receives.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Util
+	 * @example
+	 *
+	 * var object = { 'user': 'fred' };
+	 *
+	 * _.noop(object) === undefined;
+	 * // => true
+	 */
+	function noop() {
+	  // No operation performed.
+	}
+
+	module.exports = noop;
+
+
+/***/ },
+/* 129 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict'
+
+	var toArray = __webpack_require__(130)
 
 	/**
 	 * The last argument is the component, all prior arguments are decorators for
@@ -5129,7 +5182,7 @@ var Vulture =
 
 
 /***/ },
-/* 128 */
+/* 130 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _Symbol = __webpack_require__(14),
@@ -5137,11 +5190,11 @@ var Vulture =
 	    getTag = __webpack_require__(104),
 	    isArrayLike = __webpack_require__(21),
 	    isString = __webpack_require__(2),
-	    iteratorToArray = __webpack_require__(129),
+	    iteratorToArray = __webpack_require__(131),
 	    mapToArray = __webpack_require__(113),
 	    setToArray = __webpack_require__(117),
-	    stringToArray = __webpack_require__(130),
-	    values = __webpack_require__(131);
+	    stringToArray = __webpack_require__(132),
+	    values = __webpack_require__(133);
 
 	/** `Object#toString` result references. */
 	var mapTag = '[object Map]',
@@ -5192,7 +5245,7 @@ var Vulture =
 
 
 /***/ },
-/* 129 */
+/* 131 */
 /***/ function(module, exports) {
 
 	/**
@@ -5216,7 +5269,7 @@ var Vulture =
 
 
 /***/ },
-/* 130 */
+/* 132 */
 /***/ function(module, exports) {
 
 	/** Used to compose unicode character classes. */
@@ -5258,10 +5311,10 @@ var Vulture =
 
 
 /***/ },
-/* 131 */
+/* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var baseValues = __webpack_require__(132),
+	var baseValues = __webpack_require__(134),
 	    keys = __webpack_require__(91);
 
 	/**
@@ -5297,10 +5350,10 @@ var Vulture =
 
 
 /***/ },
-/* 132 */
+/* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var arrayMap = __webpack_require__(133);
+	var arrayMap = __webpack_require__(135);
 
 	/**
 	 * The base implementation of `_.values` and `_.valuesIn` which creates an
@@ -5322,7 +5375,7 @@ var Vulture =
 
 
 /***/ },
-/* 133 */
+/* 135 */
 /***/ function(module, exports) {
 
 	/**
@@ -5349,7 +5402,7 @@ var Vulture =
 
 
 /***/ },
-/* 134 */
+/* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
@@ -5396,12 +5449,12 @@ var Vulture =
 
 
 /***/ },
-/* 135 */
+/* 137 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var map = __webpack_require__(134)
+	var map = __webpack_require__(136)
 
 	/**
 	 * Iterates over all nodes in a virtual DOM tree. Uses the same implementation
@@ -5422,12 +5475,12 @@ var Vulture =
 
 
 /***/ },
-/* 136 */
+/* 138 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var forEach = __webpack_require__(135)
+	var forEach = __webpack_require__(137)
 
 	/**
 	 * Turns a virtual DOM tree into a single value. Maintains the standard `reduce`
@@ -5451,12 +5504,12 @@ var Vulture =
 
 
 /***/ },
-/* 137 */
+/* 139 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	var toArray = __webpack_require__(128)
+	var toArray = __webpack_require__(130)
 
 	/**
 	 * Takes all of the arguments and returns a thunk which will decorate the
@@ -5481,29 +5534,29 @@ var Vulture =
 
 
 /***/ },
-/* 138 */
+/* 140 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict'
 
-	module.exports = __webpack_require__(139)
+	module.exports = __webpack_require__(141)
 
 
 /***/ },
-/* 139 */
+/* 141 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Partial = __webpack_require__(140);
+	var Partial = __webpack_require__(142);
 
 	module.exports = Partial();
 
 
 /***/ },
-/* 140 */
+/* 142 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var shallowEq = __webpack_require__(141);
-	var Thunk = __webpack_require__(142);
+	var shallowEq = __webpack_require__(143);
+	var Thunk = __webpack_require__(144);
 
 	module.exports = createPartial;
 
@@ -5537,7 +5590,7 @@ var Vulture =
 
 
 /***/ },
-/* 141 */
+/* 143 */
 /***/ function(module, exports) {
 
 	module.exports = shallowEq;
@@ -5564,7 +5617,7 @@ var Vulture =
 
 
 /***/ },
-/* 142 */
+/* 144 */
 /***/ function(module, exports) {
 
 	function Thunk(fn, args, key, eqArgs) {
