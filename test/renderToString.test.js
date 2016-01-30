@@ -1,6 +1,7 @@
 var assert = require('assert')
 var h = require('virtual-dom/h')
 var renderToString = require('../lib/renderToString')
+var HardSetHook = require('../lib/HardSetHook')
 var Series = require('./fixtures/Series')
 
 var sampleData = Series.sampleData
@@ -16,5 +17,9 @@ describe('renderToString()', function () {
 
   it('will render an array', function () {
     assert.equal(renderToString([h('div'), h('div'), h('div')]), '<div></div><div></div><div></div>')
+  })
+
+  it('will render a HardSetHook as value', function () {
+    assert.equal(renderToString(h('input', { value: new HardSetHook('foobar') })), '<input value="foobar">')
   })
 })
