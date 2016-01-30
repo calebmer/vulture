@@ -2,6 +2,8 @@ var assert = require('assert')
 var identity = require('lodash/identity')
 var jsdom = require('jsdom').jsdom
 var createElement = require('virtual-dom/create-element')
+var diffNodes = require('virtual-dom/diff')
+var patchDOM = require('virtual-dom/patch')
 var VNode = require('virtual-dom/vnode/vnode')
 var EventHook = require('../lib/EventHook')
 var v = require('../lib/v')
@@ -124,5 +126,22 @@ describe('v()', function () {
       v('div', { foo: 'bar', 'aria-hidden': true, 'data-data': 'hello' }),
       new VNode('div', { foo: 'bar', attributes: { 'aria-hidden': true, 'data-data': 'hello' } })
     )
+  })
+
+  it('will always set the value', function () {
+    var firstVNode = v('input', { id: 'input', value: 'Hello, world!' })
+    var secondVNode = v('input', { id: 'input', value: 'Hello, world!' })
+    var window = jsdom('<div id="container"></div>').defaultView
+    var document = window.document
+    var Event = window.Event
+    var container = document.getElementById('container')
+    var input = createElement(firstVNode, { document: document })
+    container.appendChild(input)
+    assert.equal(input.value, 'Hello, world!')
+    input.value = 'Goodbye, moon.'
+    assert.equal(input.value, 'Goodbye, moon.')
+    var patches = diffNodes(firstVNode, secondVNode)
+    patchDOM(input, patches)
+    assert.equal(input.value, 'Hello, world!')
   })
 })
