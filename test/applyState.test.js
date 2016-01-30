@@ -22,9 +22,9 @@ describe('applyState()', function () {
 
   it('will render as normal', function () {
     var SeriesWithState = applyState(Series)
-    var node = SeriesWithState(sampleData).render()
-    delete node.properties.__stateHook__
-    assert.deepEqual(node, Series(sampleData))
+    var vnode = SeriesWithState(sampleData).render()
+    delete vnode.properties.__updateHook__
+    assert.deepEqual(vnode, Series(sampleData))
   })
 
   it('will add properties to this', function (done) {
