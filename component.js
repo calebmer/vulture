@@ -4,6 +4,8 @@
 
 var Vulture = require('./lib/createComponent')
 
+Object.defineProperty(exports, '__esModule', { value: true })
+
 Vulture.applyState = require('./lib/applyState')
 Vulture.createComponent = require('./lib/createComponent')
 

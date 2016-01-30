@@ -2,6 +2,8 @@
 
 var Vulture = require('./lib/v')
 
+Object.defineProperty(exports, '__esModule', { value: true })
+
 Vulture.v = require('./lib/v')
 
 Vulture.renderToDOM = require('./lib/renderToDOM')
