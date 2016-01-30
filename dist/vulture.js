@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.9.1
+ * Vulture 3.9.2
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -154,6 +154,8 @@ var Vulture =
 	      // diffing. For example, if in a diff the `a` node and the `b` node both
 	      // have the same value if the value has been changed between `a` and `b`
 	      // the value will not be updated. This hook fixes that bug.
+	      // TODO: This might not need to be in core. Bug manifests itself in
+	      // `vulture-forms` potentially exclusively.
 	      transformedProperties.value = new HardSetHook(value)
 	      continue
 	    }
@@ -1352,6 +1354,10 @@ var Vulture =
 
 	HardSetHook.prototype.hook = function hook (node, property) {
 	  node[property] = this.value
+	}
+
+	HardSetHook.prototype.toString = function toString () {
+	  return this.value
 	}
 
 	module.exports = HardSetHook
