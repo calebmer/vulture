@@ -133,7 +133,6 @@ describe('v()', function () {
     var secondVNode = v('input', { id: 'input', value: 'Hello, world!' })
     var window = jsdom('<div id="container"></div>').defaultView
     var document = window.document
-    var Event = window.Event
     var container = document.getElementById('container')
     var input = createElement(firstVNode, { document: document })
     container.appendChild(input)
