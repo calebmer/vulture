@@ -60,14 +60,13 @@ describe('v()', function () {
 
     assert(!(vnode.properties.click instanceof EventHook))
     assert(vnode.properties.onClick instanceof EventHook)
-    assert.equal(vnode.properties.onClick.event, 'click')
-    assert.equal(vnode.properties.onClick.listener, identity)
+    assert.deepEqual(vnode.properties.onClick.listeners, { click: identity })
     assert(vnode.properties.onTap instanceof EventHook)
-    assert.equal(vnode.properties.onTap.event, 'tap')
+    assert.deepEqual(vnode.properties.onTap.listeners, { tap: identity })
     assert(vnode.properties.onMouseOver instanceof EventHook)
-    assert.equal(vnode.properties.onMouseOver.event, 'mouseover')
+    assert.deepEqual(vnode.properties.onMouseOver.listeners, { mouseover: identity })
     assert(vnode.properties.onWhatever instanceof EventHook)
-    assert.equal(vnode.properties.onWhatever.event, 'whatever')
+    assert.deepEqual(vnode.properties.onWhatever.listeners, { whatever: identity })
   })
 
   it('attaches event hooks correctly', function () {
