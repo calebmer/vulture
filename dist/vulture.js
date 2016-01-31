@@ -1,5 +1,5 @@
 /*!
- * Vulture 3.10.0
+ * Vulture 3.10.1
  * (c) 2016 Caleb Meredith
  * Released under the MIT License.
  */
@@ -2798,6 +2798,7 @@ var Vulture =
 	      function renderer () {
 	        self.state = this.state
 	        self.setState = this.setState.bind(this)
+	        self.resetState = this.resetState.bind(this)
 	        return component.apply(self, args)
 	      }
 
@@ -2849,11 +2850,29 @@ var Vulture =
 	 */
 
 	StateThunk.prototype.setState = function setState (newState) {
-	  if (!this.state) {
-	    return
-	  }
-
 	  assign(this.state, newState)
+	  this.update()
+	}
+
+	/**
+	 * Resets the state to it‘s initial value. Does this by deleting everything
+	 * and then assigning the initial state values.
+	 *
+	 * @method
+	 */
+
+	StateThunk.prototype.resetState = function resetState () {
+	  var state = this.state
+	  var initialState = this.initialState
+
+	  Object.keys(state).forEach(function deleteKey (key) {
+	    if (initialState[key]) {
+	      state[key] = initialState[key]
+	    } else {
+	      delete state[key]
+	    }
+	  })
+
 	  this.update()
 	}
 
