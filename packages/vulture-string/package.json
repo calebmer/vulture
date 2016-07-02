@@ -1,6 +1,6 @@
 {
   "name": "vulture-string",
-  "version": "4.0.0-alpha.1",
+  "version": "4.0.0-alpha.2",
   "description": "Stream Vulture apps to an XML string on the server.",
   "author": "Caleb Meredith <calebmeredith8@gmail.com>",
   "license": "MIT",
@@ -10,6 +10,6 @@
   "jsxnext:main": "dist/es6/index.js",
   "typings": "dist/typings/index.d.ts",
   "dependencies": {
-    "vulture": "^4.0.0-alpha.1"
+    "vulture": "^4.0.0-alpha.2"
   }
 }
