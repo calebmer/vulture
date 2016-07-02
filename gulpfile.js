@@ -11,7 +11,7 @@ const includePaths = require('rollup-plugin-includepaths')
 const uglify = require('gulp-uglify')
 
 gulp.task('clean', () =>
-  gulp.src('build')
+  gulp.src(['build', 'packages/*/dist'])
     .pipe(clean())
 )
 
