@@ -1,4 +1,11 @@
 {
   "name": "vulture",
-  "version": "4.0.0-alpha.0"
+  "version": "4.0.0-alpha.0",
+  "description": "A light front-end library for creating progressive web apps.",
+  "author": "Caleb Meredith <calebmeredith8@gmail.com>",
+  "license": "MIT",
+  "repository": "calebmer/vulture",
+  "main": "dist/es3/index.js",
+  "jsxnext:main": "dist/es6/index.js",
+  "typings": "dist/typings/index.d.ts"
 }
