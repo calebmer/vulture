@@ -38,8 +38,16 @@ export function renderClosingTag (elementName: ElementName): string {
 function renderAttributes (attributes: Attributes): string {
   let attributesString = ''
 
-  for (let key in attributes)
-    attributesString += ` ${key}="${attributes[key]}"`
+  for (let key in attributes) {
+    const value = attributes[key]
+
+    if (value === undefined || value === null || value === false || typeof value === 'function') {}
+      // Noop…
+    else if (value === true)
+      attributesString += ` ${key}`
+    else
+      attributesString += ` ${key}="${value}"`
+  }
 
   return attributesString
 }

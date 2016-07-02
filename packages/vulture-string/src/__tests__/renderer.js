@@ -45,6 +45,18 @@ test('renderOpeningTag will render the opening tag with attributes', t => {
   t.is(renderOpeningTag('a', { hello: 'world', answer: 42 }), '<a hello="world" answer="42">')
 })
 
+test('renderOpeningTag will not render function attributes', t => {
+  t.is(renderOpeningTag('a', { answer: () => {} }), '<a hello="world">')
+})
+
+test('renderOpeningTag will not render undefined, null, or false attributes', t => {
+  t.is(renderOpeningTag('a', { a: null, b: null, c: null }), '<a>')
+})
+
+test('renderOpeningTag will only render the key for true attributes', t => {
+  t.is(renderOpeningTag('a', { hello: true }), '<a hello>')
+})
+
 test('renderClosingTag will render the closing tag', t => {
   t.is(renderClosingTag('a'), '</a>')
 })
