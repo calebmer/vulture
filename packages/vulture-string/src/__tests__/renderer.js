@@ -45,6 +45,6 @@ test('renderOpeningTag will render the opening tag with attributes', t => {
   t.is(renderOpeningTag('a', { hello: 'world', answer: 42 }), '<a hello="world" answer="42">')
 })
 
-test('renderOpeningTag will render the closing tag', t => {
+test('renderClosingTag will render the closing tag', t => {
   t.is(renderClosingTag('a'), '</a>')
 })
