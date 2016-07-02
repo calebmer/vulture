@@ -93,7 +93,7 @@ gulp.task('bundle', ['typings', 'es6', 'es3'], () =>
     .pipe(gulp.dest('packages'))
 )
 
-gulp.task('default', ['clean', 'typings', 'es6', 'es3', 'dist', 'dist-min'])
+gulp.task('default', ['typings', 'es6', 'es3', 'dist', 'dist-min'])
 
 function maybeRenameSourcePath (path) {
   const sourcePathRe = /(vulture[^/]*)\/src(.*)$/
