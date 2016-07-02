@@ -46,7 +46,7 @@ test('renderOpeningTag will render the opening tag with attributes', t => {
 })
 
 test('renderOpeningTag will not render function attributes', t => {
-  t.is(renderOpeningTag('a', { answer: () => {} }), '<a hello="world">')
+  t.is(renderOpeningTag('a', { answer: () => {} }), '<a>')
 })
 
 test('renderOpeningTag will not render undefined, null, or false attributes', t => {
