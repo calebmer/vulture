@@ -37,7 +37,7 @@ gulp.task('es6', () =>
 )
 
 gulp.task('es3', ['es6'], () =>
-  gulp.src(['build/es6/**/*.js'])
+  gulp.src('build/es6/**/*.js')
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(ts({
       allowJs: true,
@@ -79,7 +79,7 @@ gulp.task('dist', ['es6'], () =>
 )
 
 gulp.task('dist-min', ['dist'], () =>
-  gulp.src(['build/dist/+([^.]).js'])
+  gulp.src('build/dist/+([^.]).js')
     .pipe(sourcemaps.init())
     .pipe(uglify({ preserveComments: 'license' }))
     .pipe(sourcemaps.write('.'))
@@ -88,8 +88,8 @@ gulp.task('dist-min', ['dist'], () =>
 )
 
 gulp.task('bundle', ['typings', 'es6', 'es3'], () =>
-  gulp.src(['build/{typings,es6,es3}/**/*'])
     .pipe(rename(xxx))
+  gulp.src('build/{typings,es6,es3}/**/*')
     .pipe(gulp.dest('packages'))
 )
 
