@@ -4,6 +4,7 @@
   "description": "Stream Vulture apps to an XML string on the server.",
   "author": "Caleb Meredith <calebmeredith8@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/calebmer/vulture",
   "repository": "calebmer/vulture",
   "main": "dist/es3/index.js",
   "jsxnext:main": "dist/es6/index.js",
