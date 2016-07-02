@@ -1,6 +1,13 @@
 {
   "name": "vulture-dom",
   "version": "4.0.0-alpha.0",
+  "description": "Run interactive Vulture apps in the DOM.",
+  "author": "Caleb Meredith <calebmeredith8@gmail.com>",
+  "license": "MIT",
+  "repository": "calebmer/vulture",
+  "main": "dist/es3/index.js",
+  "jsxnext:main": "dist/es6/index.js",
+  "typings": "dist/typings/index.d.ts",
   "dependencies": {
     "vulture": "4.0.0-alpha.0"
   }
