@@ -1,0 +1,1 @@
+export { isElement } from './node'

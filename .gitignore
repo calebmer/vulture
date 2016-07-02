@@ -1,0 +1,10 @@
+.DS_Store
+npm-debug.log
+lerna-debug.log
+dist
+build
+
+# We build custom links for the vulture dependencies in our monorepo, don’t
+# ignore those.
+**/node_modules/*
+!packages/*/node_modules/vulture*

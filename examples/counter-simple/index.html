@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Vulture Example: Simple Counter</title>
+    <script src="https://npmcdn.com/zen-observable@0.3.0/zen-observable.js"></script>
+    <script src="../../build/dist/vulture.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      var count = 0
+      var observers = []
+
+      function increment () {
+        count += 1
+        observers.forEach(function observerNext (observer) { observer.next(count) })
+      }
+
+      function decrement () {
+        count -= 1
+        observers.forEach(function observerNext (observer) { observer.next(count) })
+      }
+
+      var counts = new Observable(function subscribe (observer) {
+        var i = observers.length
+        observers.push(observer)
+        observer.next(count)
+        return function unsubscribe () { observers.splice(i, 1) }
+      })
+
+      counts.subscribe(function onNext (count) {
+        console.log('Count: ', count)
+      })
+
+      var jsx = Vulture.jsx
+
+      var app =
+        jsx('p', [
+          counts.map(function computeClickedText (count) {
+            return 'Clicked: ' + count + ' times'
+          }),
+          ' ',
+          jsx('button', { onClick: increment }, ['+']),
+          jsx('button', { onClick: decrement }, ['-']),
+        ])
+
+      Vulture.render(app, document.getElementById('app'))
+    </script>
+  </body>
+</html>

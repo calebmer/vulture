@@ -1,0 +1,7 @@
+{
+  "name": "vulture-string",
+  "version": "4.0.0-alpha.0",
+  "dependencies": {
+    "vulture": "4.0.0-alpha.0"
+  }
+}
