@@ -88,8 +88,8 @@ gulp.task('dist-min', ['dist'], () =>
 )
 
 gulp.task('bundle', ['typings', 'es6', 'es3'], () =>
-    .pipe(rename(xxx))
-  gulp.src('build/{typings,es6,es3}/**/*')
+  gulp.src('build/{typings,es6,es3}/*/**/*.*')
+    .pipe(rename(moveToPackage))
     .pipe(gulp.dest('packages'))
 )
 
@@ -108,4 +108,10 @@ function addMinToPath (path) {
   const jsPathRe = /^(.*?)(\.js)?$/
   const [, basename, extension] = jsPathRe.exec(path.basename)
   path.basename = `${basename}.min${extension || ''}`
+}
+
+function moveToPackage (path) {
+  const dirnameRe = /^([^/]+)\/([^/]+)(\/.+)?$/
+  const [, artifact, package, rest] = dirnameRe.exec(path.dirname)
+  path.dirname = `${package}/dist/${artifact}/${rest || ''}`
 }
