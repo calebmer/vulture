@@ -1,4 +1,6 @@
 # Vulture
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/calebmer/vulture.svg)](https://greenkeeper.io/)
 > **TL;DR**, Vulture is cool because promises/observables are valid JSX nodes and renderers are written as reducers.
 
 Vulture is an expiremental light JSX rendering library meant to be the base for building great abstractions on top of the JavaScript of the future. Vulture is inspired by React, but it attempts to take the core principles of React to their extremes and add some basic asynchronous features on top.
